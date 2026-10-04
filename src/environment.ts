@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { generateSand } from './sand';
+import { createWind } from './wind';
 import type { Equine } from './equine';
 import { advanceImpacts, contactStrength, extractHooves, hoofAt, IMPACT_LIMIT, WIND_GLSL, type HoofTrack, type Impact } from './forces';
 export const GROUND_SPEED = 6;
@@ -7,6 +8,7 @@ const SPRAY_PER_IMPACT=256;
 const fragmentShader=`varying float alpha;void main(){float r=length(gl_PointCoord-.5)*2.;if(r>1.)discard;gl_FragColor=vec4(vec3(1.),exp(-r*r*3.6)*alpha);}`;
 export function createEnvironment(scene: THREE.Scene) {
  const compact=innerWidth<600;
+ const wind=createWind(scene,GROUND_SPEED);
  const {positions,seeds,sizes}=generateSand(compact?45000:90000);
  const uniforms={time:{value:0},pixelRatio:{value:1},speed:{value:GROUND_SPEED},impacts:{value:Array.from({length:IMPACT_LIMIT},()=>new THREE.Vector4(0,0,-100,0))},pointer:{value:new THREE.Vector4(0,0,0,0)}};
  const geometry=new THREE.BufferGeometry();
@@ -73,9 +75,10 @@ export function createEnvironment(scene: THREE.Scene) {
   uniforms.impacts.value.forEach(uniform=>uniform.set(0,0,-100,0));
   events.forEach(event=>uniforms.impacts.value[slots.get(event)!].set(event.x,event.z,event.born,event.strength));
  };
- return {materials:[material,sprayMaterial],update,get impactCount(){return events.length;},
+ return {materials:[material,sprayMaterial,wind.material],update,get impactCount(){return events.length;},
   setPointer:(point:THREE.Vector3,strength:number)=>uniforms.pointer.value.set(point.x,point.y,point.z,Math.max(0,Math.min(strength,1))),
   setQuality:(quality:number)=>{
+   wind.setQuality(quality);
    geometry.setDrawRange(0,Math.floor(seeds.length*Math.max(.5,quality)));
    // Dust is inexpensive and degrades before the anatomical surface.
    sprayGeometry.setDrawRange(0,Math.floor(dust.seeds.length*Math.max(.25,quality*quality)));

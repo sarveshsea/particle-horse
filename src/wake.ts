@@ -17,6 +17,6 @@ export function wakeForce(anchor: WakeVector, pointer: WakeVector, direction: Wa
  valid(anchor,pointer,direction);
  if (!Number.isFinite(strength)) throw new Error('Invalid wake strength');
  const delta=anchor.map((v,i)=>v-pointer[i]),distance=Math.hypot(...delta);
- const envelope=Math.max(0,1-distance/.65)**2*Math.max(0,Math.min(1,strength));
- return delta.map((v,i)=>(v/Math.max(distance,.06)*18+direction[i]*25)*envelope) as unknown as WakeVector;
+ const envelope=Math.max(0,1-distance/.8)**2*Math.max(0,Math.min(1,strength));
+ return delta.map((v,i)=>(v/Math.max(distance,.06)*36+direction[i]*80)*envelope) as unknown as WakeVector;
 }

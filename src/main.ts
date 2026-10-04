@@ -1,6 +1,6 @@
 import { createArtwork } from "./render";
 import { createEnvironment, GROUND_SPEED } from "./environment";
-import { qualityForFrame } from "./dynamics";
+import { qualityForFrame, qualityWindowReady } from "./dynamics";
 import { createCameraMotion } from "./camera-motion";
 import { createInteraction } from "./interaction";
 async function start() {
@@ -17,8 +17,7 @@ async function start() {
     quality = 1,
     raf = 0,
     lost = false,
-    elapsed = 0,
-    lastWake = -10;
+    elapsed = 0;
   const diagnostics = {
     time: 0,
     frames: 0,
@@ -39,9 +38,9 @@ async function start() {
   function draw() {
     art.setTime(time);
     cameraMotion.update(time, elapsed, reduced.matches);
+    if (cameraMotion.dragging) art.wake.clearForce();
     const pointer = interaction.update(reduced.matches || cameraMotion.dragging);
     art.wake.update(time, reduced.matches ? 0 : elapsed, pointer);
-    if (pointer.strength > .01) lastWake = time;
     art.scattered.visible = !reduced.matches && art.wake.active;
     environment.setPointer(pointer.point, pointer.strength);
     environment.update(time, art.mesh);
@@ -70,7 +69,8 @@ async function start() {
       samples++;
     }
     last = now;
-    if (++frame % 90 === 0 && samples) {
+    frame++;
+    if (qualityWindowReady(frame, total) && samples) {
       diagnostics.averageFrameMs = total / samples;
       quality = qualityForFrame(quality, total / samples, art.frameBudget);
       diagnostics.quality = quality;
@@ -80,9 +80,11 @@ async function start() {
       );
       art.geometry.setDrawRange(0, diagnostics.particles);
       environment.setQuality(quality);
+      art.wake.setQuality(quality);
       art.resize();
       total = 0;
       samples = 0;
+      frame = 0;
     }
     draw();
     raf = requestAnimationFrame(animate);
@@ -115,7 +117,6 @@ async function start() {
   art.renderer.domElement.addEventListener("webglcontextrestored", () => {
     lost = false;
     elapsed = 0;
-    lastWake = -10;
     art.wake.reset();
     diagnostics.contextLost = false;
     restart();

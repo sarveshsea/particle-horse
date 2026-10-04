@@ -13,6 +13,13 @@ describe('bounded particle wake', () => {
  for(let i=0;i<240;i++) state=advanceWake(state,[0,0,0],1/120);
  expect(Math.hypot(...state.offset)).toBeLessThan(.003);
  });
+ it('is bounded and settles at the GPU sixty-hertz timestep',()=>{
+ let state={offset:[0,0,0] as readonly [number,number,number],velocity:[0,0,0] as readonly [number,number,number]};
+ for(let i=0;i<30;i++)state=advanceWake(state,[100,70,-40],1/60);
+ expect(Math.hypot(...state.offset)).toBeLessThanOrEqual(.800001);
+ for(let i=0;i<120;i++)state=advanceWake(state,[0,0,0],1/60);
+ expect(Math.hypot(...state.offset)).toBeLessThan(.003);
+ });
  it('is local and finite at the pointer center',()=>{
  expect(()=>wakeForce([0,0,0],[0,0,0],[1,0,0],NaN)).toThrow();
  expect(wakeForce([2,0,0],[0,0,0],[1,0,0],1)).toEqual([0,0,0]);

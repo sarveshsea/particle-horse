@@ -8,3 +8,7 @@ export function qualityForFrame(
   if (milliseconds < budget * 1.02) return Math.min(1, quality + 0.025);
   return quality;
 }
+
+export function qualityWindowReady(frames: number, elapsedMs: number): boolean {
+ return frames >= 15 && (frames >= 90 || elapsedMs >= 1500);
+}
