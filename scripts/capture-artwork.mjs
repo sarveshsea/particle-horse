@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 const url = process.env.ARTWORK_URL ?? 'http://127.0.0.1:4175';
 const docs = fileURLToPath(new URL('../docs/', import.meta.url));
+const checkpoint = process.env.ARTWORK_CHECKPOINT ?? '17';
 const videoPath = '/tmp/particle-horse-av.webm';
 const browser = await chromium.launch({ headless: true, args: process.platform === 'darwin' ? ['--use-angle=metal'] : [] });
 const errors = [];
@@ -35,7 +36,7 @@ try {
     const mimeType = ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm'].find(type => MediaRecorder.isTypeSupported(type));
     if (!mimeType) throw new Error('WebM MediaRecorder unavailable');
     const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 4_000_000, audioBitsPerSecond: 128_000 });
-    const snapshot = () => ({ audio: { ...artwork.audio }, strikeCount: artwork.strikeCount, impacts: artwork.impacts, frames: artwork.frames, time: artwork.time, quality: artwork.quality });
+    const snapshot = () => ({ audio: { ...artwork.audio }, strikeCount: artwork.strikeCount, impacts: artwork.impacts, frames: artwork.frames, time: artwork.time, quality: artwork.quality, terrain: artwork.terrain, rabbits: artwork.rabbits });
     const start = snapshot();
     const chunks = [];
     recorder.ondataavailable = event => { if (event.data.size) chunks.push(event.data); };
@@ -89,13 +90,16 @@ try {
   await writeFile(videoPath, Buffer.from(recording.base64, 'base64'));
   const { base64, ...measurements } = recording;
   const report = { date: new Date().toISOString(), url, output: videoPath, choreography: '0–3s gallop;3–5s mouse wake;5–6s return;6–7s drag;7–10s idle', ...measurements };
+  await page.waitForFunction(() => window.__ARTWORK.rabbits.positions.some(p => Math.abs(p.x) < 1.1));
   await page.screenshot({ path: `${docs}artwork.png` });
+  await page.screenshot({ path: `${docs}meadow-${checkpoint}.png`, clip: { x: 0, y: 550, width: 1440, height: 450 } });
+  await page.screenshot({ path: `${docs}legs-${checkpoint}.png`, clip: { x: 430, y: 500, width: 700, height: 350 } });
   for (let i = 1; i <= 4; i++) {
     await page.waitForTimeout(225);
     await page.screenshot({ path: `${docs}gallop-${i}.png` });
   }
-  await page.screenshot({ path: `${docs}head-12.png`, clip: { x: 780, y: 160, width: 390, height: 380 } });
-  await page.screenshot({ path: `${docs}tail-12.png`, clip: { x: 220, y: 280, width: 430, height: 350 } });
+  await page.screenshot({ path: `${docs}head-${checkpoint}.png`, clip: { x: 780, y: 160, width: 390, height: 380 } });
+  await page.screenshot({ path: `${docs}tail-${checkpoint}.png`, clip: { x: 220, y: 280, width: 430, height: 350 } });
   await desktop.close();
   const portrait = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, reducedMotion: 'no-preference' });
   const mobile = await portrait.newPage();
@@ -103,10 +107,11 @@ try {
   await mobile.goto(url, { waitUntil: 'networkidle' });
   await mobile.waitForFunction(() => window.__ARTWORK?.frames > 2);
   await mobile.waitForTimeout(3000);
+  await mobile.waitForFunction(() => window.__ARTWORK.rabbits.positions.some(p => Math.abs(p.x) < 1.1));
   await mobile.screenshot({ path: `${docs}portrait.png` });
   await portrait.close();
   report.errors = [...new Set(errors)];
-  await writeFile(`${docs}audio-measurements-12.json`, `${JSON.stringify(report, null, 2)}\n`);
+  await writeFile(`${docs}audio-measurements-${checkpoint}.json`, `${JSON.stringify(report, null, 2)}\n`);
   console.log(`Saved ${videoPath}, artwork/gait/detail/portrait screenshots, and audio measurements.`);
   console.log(`Recorded audio impacts: ${report.end.audio.playedImpacts - report.start.audio.playedImpacts}; strikes: ${report.end.strikeCount - report.start.strikeCount}.`);
   if (report.errors.length || report.end.audio.playedImpacts <= report.start.audio.playedImpacts) process.exitCode = 1;

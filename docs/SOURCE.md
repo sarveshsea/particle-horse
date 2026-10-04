@@ -19,10 +19,14 @@ Original OBJ comment notice, preserved verbatim:
 
 ## Runtime conversion
 
-Run `python3 scripts/bake-equine.py /path/to/extracted/horse-gallop` from the project root. The script requires all 48 numbered OBJ frames and validates identical topology and vertex correspondence. The source contains two nearly identical 24-frame strides; the conversion retains the first stride. No closing endpoint is duplicated. It preserves every source vertex and triangle of those frames, with one shared axis conversion and scale of 2.6, and one global ground offset. It does not recenter, rescale, or otherwise alter individual poses.
+Run `python3 scripts/bake-equine.py /path/to/extracted/horse-gallop` from the project root. The script requires all 48 numbered OBJ frames and validates identical topology and vertex correspondence. The source contains two nearly identical 24-frame blocks; the conversion retains the first block. No closing endpoint is duplicated. It preserves every source vertex and triangle of those frames, with one shared axis conversion and scale of 2.6, and one global ground offset. It does not recenter, rescale, or otherwise alter individual poses.
 
 - `frames.f32`: little-endian float32 values, ordered frame → vertex → X,Y,Z. 24 × 8,431 × 3 values; 2,428,128 bytes.
 - `topology.u32`: little-endian uint32, zero-based vertex indices, three per triangle. 16,843 triangles; 202,116 bytes.
 - `metadata.json`: counts, bounds, conversion, provenance, retained filenames, duplicate-stride measurements, and the chosen 0.9-second playback period.
 
 The head faces world +X. Source Y remains vertical; source Z becomes world X and source X becomes negative world Z. World bounds are X −2.078206 to 1.3805454, Y 0 to 2.29430214, Z −0.3203928 to 0.3155386. These are rendering units chosen for plausible scale, not physical measurements of a living animal.
+
+## Runtime stride refinement (checkpoint 16)
+
+Further contact inspection found two near-repeated support cycles inside the retained 24-frame block. The renderer now selects its second 12-pose support cycle, linearly resamples 24 runtime frames over0.9 seconds and applies bounded smooth stance corrections. Published raw frames and topology remain unchanged. Tests bound sole height, support velocity, lower-limb surface-edge distortion and frame-seam continuity; the project does not claim skeletal bone validation. The metadata support-cycle label is corrected to2. Rabbit anatomy and bounding motion are generated in code and use no external animal asset.

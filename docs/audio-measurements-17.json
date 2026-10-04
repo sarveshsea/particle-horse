@@ -1,0 +1,109 @@
+{
+  "date": "2026-10-04T19:03:27.218Z",
+  "url": "http://127.0.0.1:4175",
+  "output": "/tmp/particle-horse-av.webm",
+  "choreography": "0\u20133s gallop;3\u20135s mouse wake;5\u20136s return;6\u20137s drag;7\u201310s idle",
+  "mimeType": "video/webm;codecs=vp9,opus",
+  "bytes": 5290259,
+  "elapsedMs": 10094.600000023842,
+  "start": {
+    "audio": {
+      "unlocked": true,
+      "muted": false,
+      "activeVoices": 2,
+      "playedImpacts": 7,
+      "status": "ready"
+    },
+    "strikeCount": 8,
+    "impacts": 7,
+    "frames": 111,
+    "time": 1.8999999999999986,
+    "quality": 0.88,
+    "terrain": {
+      "height": 0.11642919690067935,
+      "pitch": -0.019303159203816103
+    },
+    "rabbits": {
+      "count": 3,
+      "particles": 36000,
+      "positions": [
+        {
+          "x": -0.3399999999999892,
+          "y": 0.1171440568011742,
+          "z": -1.35,
+          "speed": -8.6
+        },
+        {
+          "x": -11.98999999999998,
+          "y": 0.13203412882836935,
+          "z": 1.65,
+          "speed": -9.1
+        },
+        {
+          "x": 8.360000000000014,
+          "y": -0.10242216549751387,
+          "z": -2.05,
+          "speed": -9.6
+        }
+      ]
+    }
+  },
+  "end": {
+    "audio": {
+      "unlocked": true,
+      "muted": false,
+      "activeVoices": 2,
+      "playedImpacts": 52,
+      "status": "ready"
+    },
+    "strikeCount": 53,
+    "impacts": 8,
+    "frames": 712,
+    "time": 11.916199999999973,
+    "quality": 1,
+    "terrain": {
+      "height": 0.1541556038513342,
+      "pitch": 0.06249363001752226
+    },
+    "rabbits": {
+      "count": 3,
+      "particles": 36000,
+      "positions": [
+        {
+          "x": 9.52068000000024,
+          "y": 0.13171374319163273,
+          "z": -1.35,
+          "speed": -8.6
+        },
+        {
+          "x": -7.13741999999975,
+          "y": -0.2780307251202997,
+          "z": 1.65,
+          "speed": -9.1
+        },
+        {
+          "x": 8.204480000000274,
+          "y": 0.13505657911629107,
+          "z": -2.05,
+          "speed": -9.6
+        }
+      ]
+    }
+  },
+  "audioTracks": [
+    {
+      "kind": "audio",
+      "enabled": true,
+      "readyState": "live"
+    }
+  ],
+  "errors": [],
+  "encodedPreview": {
+    "path": "docs/preview.mp4",
+    "peakDbfs": -11.209859,
+    "rmsDbfs": -32.462029,
+    "nanSamples": 0,
+    "infiniteSamples": 0,
+    "assessment": "Objective capture measurements only; no subjective listening claim. Recorded source samples and audio mix are unchanged."
+  }
+}

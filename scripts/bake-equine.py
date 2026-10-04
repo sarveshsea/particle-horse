@@ -42,7 +42,7 @@ def bake(source, output, scale=2.6):
                         for v, w in zip(meshes[j][0], meshes[j + 24][0])
                         for a, b in zip(v, w)]
     if max(duplicate_deltas) > 0.001:
-        raise ValueError('Expected two near-identical source strides')
+        raise ValueError('Expected two near-identical source blocks')
     duplicate_rms = math.sqrt(sum(d * d for d in duplicate_deltas) / len(duplicate_deltas))
     meshes = meshes[:24]
     paths = paths[:24]
@@ -58,7 +58,7 @@ def bake(source, output, scale=2.6):
         'format': 'Little-endian float32 XYZ, frame-major; little-endian uint32 triangle indices',
         'groundOffset': -ground * scale,
         'sourceFrames': [p.name for p in paths],
-        'stridesPerSequence': 1,
+        'stridesPerSequence': 2,
         'sourceFrameCount': 48,
         'discardedDuplicateStrideMaxDelta': max(duplicate_deltas),
         'discardedDuplicateStrideRmsDelta': duplicate_rms,

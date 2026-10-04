@@ -5,11 +5,13 @@ import { createCameraMotion } from "./camera-motion";
 import { createInteraction } from "./interaction";
 import { createHorseAudio } from "./audio";
 import { createMeadow } from "./meadow-render";
-import { horseTerrainPose } from "./terrain";
+import { horseTerrainPose, worldHeight } from "./terrain";
+import { createRabbits } from "./rabbit-render";
 async function start() {
   const art = await createArtwork(),
     environment = createEnvironment(art.scene, art.wake.uniforms);
   const meadow = createMeadow(art.scene, innerWidth < 600, art.wake.uniforms);
+  const rabbits = createRabbits(art.scene, innerWidth < 600, art.wake.uniforms, worldHeight);
   const sound = createHorseAudio(art.renderer.domElement);
   const interaction = createInteraction(art.camera, art.renderer.domElement, art.mesh);
   const cameraMotion = createCameraMotion(art.camera, art.renderer.domElement, event => interaction.tap(event));
@@ -26,6 +28,7 @@ async function start() {
   const diagnostics = {
     time: 0,
     terrain: horseTerrainPose(0),
+    get rabbits() { return rabbits.diagnostics(); },
     frames: 0,
     quality: 1,
     averageFrameMs: 0,
@@ -61,6 +64,7 @@ async function start() {
     const contacts = environment.update(time, art.mesh);
     sound.update(time, contacts, art.camera);
     meadow.update(time, contacts, art.renderer.getPixelRatio(), reduced.matches);
+    rabbits.update(time, art.renderer.getPixelRatio(), reduced.matches);
     diagnostics.impacts = environment.impactCount;
     diagnostics.strikeCount = environment.strikeCount;
     diagnostics.activeSpray = environment.activeSpray;
@@ -101,6 +105,7 @@ async function start() {
       art.geometry.setDrawRange(0, diagnostics.particles);
       environment.setQuality(quality);
       meadow.setQuality(quality);
+      rabbits.setQuality(Math.max(.65, quality));
       art.wake.setQuality(quality);
       art.hair.setQuality(Math.max(.6, quality));
       art.resize();

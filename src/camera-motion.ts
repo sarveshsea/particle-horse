@@ -41,10 +41,11 @@ export function createCameraMotion(
   let time = 0;
   let lastInput = -Infinity;
   let reduced = false;
+  let stillTerrainTime = 0;
   canvas.style.touchAction = "none";
   const apply = () => {
     const horizontal = pose.radius * Math.cos(pose.elevation);
-    const targetHeight=1.07+worldHeight(0,0,reduced?0:time);
+    const targetHeight=1.07+worldHeight(0,0,reduced?stillTerrainTime:time);
     camera.position.set(-.2 + horizontal * Math.sin(pose.yaw), targetHeight + pose.radius * Math.sin(pose.elevation), horizontal * Math.cos(pose.yaw));
     camera.lookAt(-.2, targetHeight, 0);
   };
@@ -81,6 +82,7 @@ export function createCameraMotion(
     get dragging() { return active !== undefined; },
     update(now: number, dt: number, still: boolean) {
       time = now;
+      if (still && !reduced) stillTerrainTime = now;
       reduced = still;
       if (still) {
         active = undefined;

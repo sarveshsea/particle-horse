@@ -45,7 +45,7 @@
     "horse-gallop-23.obj",
     "horse-gallop-24.obj"
   ],
-  "stridesPerSequence": 1,
+  "stridesPerSequence": 2,
   "sourceFrameCount": 48,
   "discardedDuplicateStrideMaxDelta": 6.1000000000005494e-05,
   "discardedDuplicateStrideRmsDelta": 3.5133586371078462e-06,

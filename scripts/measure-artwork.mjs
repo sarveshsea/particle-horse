@@ -1,13 +1,14 @@
 import { chromium } from '@playwright/test';
 import { execFileSync } from 'node:child_process';
-import { writeFile, readFile } from 'node:fs/promises';
+import { writeFile, readFile, readdir } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
 const url = process.env.ARTWORK_URL ?? 'http://127.0.0.1:4175';
+const checkpoint = process.env.ARTWORK_CHECKPOINT ?? '17';
 const warmupSeconds = 6;
 const sampleSeconds = 6;
-const output = fileURLToPath(new URL('../docs/performance-12.json', import.meta.url));
+const output = fileURLToPath(new URL(`../docs/performance-${checkpoint}.json`, import.meta.url));
 const profiles = [
   { profile: 'desktop', width: 1440, height: 1000, dpr: 1 },
   { profile: 'portrait', width: 390, height: 844, dpr: 2 },
@@ -73,6 +74,9 @@ async function measure(browser, profile, interaction) {
           strikeCount: state.strikeCount,
           floorLayers: state.floorLayers,
           floor: state.inspectFloor?.(),
+          terrain: state.terrain,
+          rabbits: state.rabbits,
+          brush: state.inspectBrush?.(),
           cameraYaw: state.cameraYaw,
           paused: state.paused,
           contextLost: state.contextLost,
@@ -116,8 +120,8 @@ try {
     }
   }
   const sourceHashes = Object.fromEntries(await Promise.all(
-    ['meadow', 'meadow-render', 'audio-mix', 'main', 'render', 'anatomy', 'hair', 'environment', 'contacts', 'sand', 'forces', 'audio', 'audio-events', 'particle-wake', 'camera-motion', 'interaction', 'wind', 'dynamics', 'equine'].map(async name => {
-      const path = `src/${name}.ts`;
+    (await readdir(new URL('../src/', import.meta.url))).filter(name => name.endsWith('.ts')).map(async name => {
+      const path = `src/${name}`;
       return [path, createHash('sha256').update(await readFile(new URL(`../${path}`, import.meta.url))).digest('hex')];
     })
   ));
