@@ -9,10 +9,12 @@ describe('bounded particle wake', () => {
  let state = {offset:[0,0,0] as readonly [number,number,number],velocity:[0,0,0] as readonly [number,number,number]};
  for(let i=0;i<60;i++) state=advanceWake(state,[100,70,-40],1/120);
  expect(Math.hypot(...state.offset)).toBeLessThanOrEqual(.800001);
+ expect(Math.hypot(...state.velocity)).toBeLessThanOrEqual(8.000001);
  for(let i=0;i<240;i++) state=advanceWake(state,[0,0,0],1/120);
  expect(Math.hypot(...state.offset)).toBeLessThan(.003);
  });
  it('is local and finite at the pointer center',()=>{
+ expect(()=>wakeForce([0,0,0],[0,0,0],[1,0,0],NaN)).toThrow();
  expect(wakeForce([2,0,0],[0,0,0],[1,0,0],1)).toEqual([0,0,0]);
  expect(wakeForce([0,0,0],[0,0,0],[1,0,0],1).every(Number.isFinite)).toBe(true);
  expect(wakeForce([.1,0,0],[0,0,0],[1,0,0],0)).toEqual([0,0,0]);

@@ -31,6 +31,7 @@ describe('camera motion', () => {
       style = { touchAction: '' };
       setPointerCapture() {}
       releasePointerCapture() {}
+      hasPointerCapture() { return true; }
     }
     const canvas = new Canvas();
     const camera = new PerspectiveCamera(34, 1.44);

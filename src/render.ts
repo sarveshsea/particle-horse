@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { createParticleWake, wakeShader } from "./particle-wake";
 import {
   decodeEquine,
   sampleSurface,
@@ -24,6 +25,8 @@ uniform float density;
 uniform float pixelRatio;
 varying float light;
 varying float opacity;
+varying float detachment;
+${wakeShader}
 ${atlasShader}
 void main(){
  vec3 a=animated(triangle.x),b=animated(triangle.y),c=animated(triangle.z);
@@ -32,7 +35,9 @@ void main(){
  vec3 edge=b-a;vec3 tangent=edge*inversesqrt(max(dot(edge,edge),1e-10));
  vec3 blended=tangent*normalCoefficients.x+cross(face,tangent)*normalCoefficients.y+face*normalCoefficients.z;
  vec3 normal=blended*inversesqrt(max(dot(blended,blended),1e-10));
- vec4 view=modelViewMatrix*vec4(p+normal*.002,1.);
+ vec3 offset=particleOffset(p,seed);
+ detachment=smoothstep(.018,.09,length(offset));
+ vec4 view=modelViewMatrix*vec4(p+offset+normal*.002,1.);
  gl_Position=projectionMatrix*view;
  gl_PointSize=clamp((7.8+seed*6.)*pixelRatio/-view.z,.8,3.*pixelRatio);
  float diffuse=max(0.,dot(normal,normalize(vec3(-.25,.65,1.))))*.8+max(0.,dot(normal,normalize(vec3(1.,.3,.2))))*.2;
@@ -49,7 +54,9 @@ void main(){
  light=brightness*(.22+diffuse*.90+rim*.22)*mix(1.,.72+fiber*.40,muscleMask);
  opacity=.68;
 }`;
-const fragmentShader = `varying float light;varying float opacity;void main(){float r=length(gl_PointCoord-.5)*2.;if(r>1.)discard;gl_FragColor=vec4(vec3(light),exp(-r*r*3.4)*opacity);}`;
+const fragmentShader = `varying float light;varying float opacity;varying float detachment;uniform float wakePass;
+void main(){float visibility=mix(1.-detachment,detachment,wakePass);if(visibility<.01)discard;
+float r=length(gl_PointCoord-.5)*2.;if(r>1.)discard;gl_FragColor=vec4(vec3(light),exp(-r*r*3.4)*opacity*visibility);}`;
 async function loadEquine() {
   const root = import.meta.env.BASE_URL + "equine/";
   const responses = await Promise.all(
@@ -103,7 +110,10 @@ export async function createArtwork() {
     pixelRatio: { value: 1 },
     density: { value: 1 },
   };
+  const wake = createParticleWake(renderer, count, cloud, uniforms);
+  const particleUniforms = { ...uniforms, ...wake.uniforms, wakePass: { value: 0 } };
   const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("wakeUv", new THREE.BufferAttribute(wake.uv, 2));
   geometry.setAttribute(
     "position",
     new THREE.BufferAttribute(new Float32Array(count * 3), 3),
@@ -130,7 +140,7 @@ export async function createArtwork() {
     new THREE.BufferAttribute(cloud.brightness, 1),
   );
   const material = new THREE.ShaderMaterial({
-    uniforms,
+    uniforms: particleUniforms,
     vertexShader,
     fragmentShader,
     transparent: true,
@@ -142,6 +152,16 @@ export async function createArtwork() {
   horse.frustumCulled = false;
   horse.renderOrder = 2;
   scene.add(horse);
+  const scatteredMaterial = new THREE.ShaderMaterial({
+    uniforms: { ...particleUniforms, wakePass: { value: 1 } },
+    vertexShader, fragmentShader, transparent: true, depthWrite: false,
+    depthTest: false, blending: THREE.AdditiveBlending,
+  });
+  const scattered = new THREE.Points(geometry, scatteredMaterial);
+  scattered.frustumCulled = false;
+  scattered.renderOrder = 4;
+  scattered.visible = false;
+  scene.add(scattered);
   // A depth-only surface hides far-side points so muscles read as volumes, not wire spheres.
   const surfaceGeometry = new THREE.BufferGeometry();
   surfaceGeometry.setAttribute(
@@ -199,6 +219,8 @@ export async function createArtwork() {
     geometry,
     material,
     horse,
+    wake,
+    scattered,
     resize,
     setTime,
     mesh,

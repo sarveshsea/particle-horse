@@ -140,9 +140,10 @@ test("reduces actual rendering density under sustained slow frames", async ({
       first,
       count,
     ) {
-      if (mode === this.POINTS)
-        (window as unknown as { pointSubmission: number }).pointSubmission =
-          count;
+      if (mode === this.POINTS) {
+        const target = window as unknown as { pointSubmissions: number[] };
+        target.pointSubmissions = [...(target.pointSubmissions || []), count].slice(-30);
+      }
       return originalDraw.call(this, mode, first, count);
     };
 
@@ -161,9 +162,9 @@ test("reduces actual rendering density under sustained slow frames", async ({
   expect((await stats(page)).particles).toBeLessThan(140000);
   expect(
     await page.evaluate(
-      () => (window as unknown as { pointSubmission: number }).pointSubmission,
+      () => (window as unknown as { pointSubmissions: number[] }).pointSubmissions,
     ),
-  ).toBe((await stats(page)).particles);
+  ).toContain((await stats(page)).particles);
 
   await page.setViewportSize({ width: 844, height: 390 });
   await expect
