@@ -16,11 +16,11 @@ class Node {
  connect=vi.fn();disconnect=vi.fn();start=vi.fn();stop=vi.fn();
 }
 class Context {
- static last:Context; state='running'; currentTime=1; destination=new Node(); sources:Node[]=[];
+ static last:Context; state='running'; currentTime=1; destination=new Node(); sources:Node[]=[];nodes:Node[]=[];
  constructor(){Context.last=this;}
- createGain(){return new Node();} createDynamicsCompressor(){return new Node();} createMediaStreamDestination(){return {...new Node(),stream:{id:'capture'}};}
+ createGain(){const node=new Node();this.nodes.push(node);return node;} createDynamicsCompressor(){return new Node();} createMediaStreamDestination(){return {...new Node(),stream:{id:'capture'}};}
  createBufferSource(){const node=new Node();this.sources.push(node);return node;}
- createStereoPanner(){return new Node();} createBiquadFilter(){return new Node();}
+ createStereoPanner(){const node=new Node();this.nodes.push(node);return node;} createBiquadFilter(){const node=new Node();this.nodes.push(node);return node;}
  decodeAudioData=vi.fn().mockResolvedValue({duration:.2});
  resume=vi.fn().mockResolvedValue(undefined);suspend=vi.fn().mockResolvedValue(undefined);close=vi.fn().mockResolvedValue(undefined);
 }
@@ -31,4 +31,9 @@ describe('unlocked recorded audio',()=>{
  it('mutes smoothly and pauses without queued replay',async()=>{const {canvas,win,sound}=setup();canvas.send('pointerdown',{isTrusted:true});await ready();win.send('keydown',{key:'x'});expect(sound.diagnostics.muted).toBe(false);win.send('keydown',{key:'M'});expect(sound.diagnostics.muted).toBe(true);sound.setPaused(true);sound.setPaused(true);expect(Context.last.suspend).toHaveBeenCalledTimes(1);const event={id:'paused',hoof:0,born:1,x:0,y:0,z:0,strength:1,contactDuration:.12};sound.update(1,[event],{position:{x:0,z:6}});sound.setPaused(false);sound.update(1,[event],{position:{x:0,z:6}});expect(sound.diagnostics.playedImpacts).toBe(0);sound.dispose();});
  it('handles unavailable assets without breaking the canvas',async()=>{const {canvas,sound}=setup();vi.stubGlobal('fetch',vi.fn().mockResolvedValue({ok:false}));canvas.send('pointerdown',{isTrusted:true});await vi.waitFor(()=>expect(sound.diagnostics.status).toBe('unavailable'));sound.dispose();});
  it('caps voices under dense input',async()=>{const {canvas,sound}=setup();canvas.send('pointerdown',{isTrusted:true});await ready();const events=Array.from({length:30},(_,i)=>({id:String(i),hoof:i%4,born:1,x:0,y:0,z:0,strength:1,contactDuration:.1}));sound.update(1,events,{position:{x:0,z:6}});expect(sound.diagnostics.activeVoices).toBe(24);sound.dispose();});
+});
+
+describe('audio node ownership',()=>{
+ it('honors mute chosen before the first activation',async()=>{const {win,canvas,sound}=setup();win.send('keydown',{key:'m'});canvas.send('pointerdown',{isTrusted:true});await ready();expect(Context.last.nodes[0].gain.value).toBe(0);sound.dispose();});
+ it('disconnects every per-voice and ambience node when paused',async()=>{const {canvas,sound}=setup();canvas.send('pointerdown',{isTrusted:true});await ready();sound.update(1,[{id:'release',hoof:0,born:1,x:0,y:0,z:0,strength:1,contactDuration:.12}],{position:{x:0,z:6}});sound.setPaused(true);for(const node of Context.last.nodes.slice(1))expect(node.disconnect).toHaveBeenCalledTimes(1);for(const source of Context.last.sources)expect(source.disconnect).toHaveBeenCalledTimes(1);sound.dispose();});
 });
