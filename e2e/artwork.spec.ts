@@ -159,11 +159,20 @@ test("reduces actual rendering density under sustained slow frames", async ({
   );
 });
 
-test('ground visibly travels backward beneath the horse',async({page})=>{
- await page.goto('/');await expect.poll(async()=>(await stats(page))?.frames).toBeGreaterThan(3);
- const a=await stats(page);const before=PNG.sync.read(await page.screenshot());
- await page.waitForTimeout(250);const after=PNG.sync.read(await page.screenshot());const b=await stats(page);
- expect(b.groundDistance-a.groundDistance).toBeGreaterThan(2);
- let changed=0;for(let y=750;y<1000;y++)for(let x=0;x<1440;x++){const i=(y*1440+x)*4;if(Math.abs(before.data[i]-after.data[i])>5)changed++;}
- expect(changed).toBeGreaterThan(500);
+test("ground visibly travels backward beneath the horse", async ({ page }) => {
+  await page.goto("/");
+  await expect.poll(async () => (await stats(page))?.frames).toBeGreaterThan(3);
+  const a = await stats(page);
+  const before = PNG.sync.read(await page.screenshot());
+  await page.waitForTimeout(250);
+  const after = PNG.sync.read(await page.screenshot());
+  const b = await stats(page);
+  expect(b.groundDistance - a.groundDistance).toBeGreaterThan(2);
+  let changed = 0;
+  for (let y = 750; y < 1000; y++)
+    for (let x = 0; x < 1440; x++) {
+      const i = (y * 1440 + x) * 4;
+      if (Math.abs(before.data[i] - after.data[i]) > 5) changed++;
+    }
+  expect(changed).toBeGreaterThan(500);
 });

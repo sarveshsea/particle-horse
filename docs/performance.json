@@ -1,0 +1,18 @@
+[
+  {
+    "profile": "desktop",
+    "fps": 56.24,
+    "durationSeconds": 8.02,
+    "quality": 1,
+    "particles": 140000,
+    "errors": []
+  },
+  {
+    "profile": "portrait",
+    "fps": 59.98,
+    "durationSeconds": 8,
+    "quality": 1,
+    "particles": 68000,
+    "errors": []
+  }
+]
