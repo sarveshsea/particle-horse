@@ -3,9 +3,11 @@ import { createEnvironment, GROUND_SPEED } from "./environment";
 import { qualityForFrame, qualityWindowReady } from "./dynamics";
 import { createCameraMotion } from "./camera-motion";
 import { createInteraction } from "./interaction";
+import { createHorseAudio } from "./audio";
 async function start() {
   const art = await createArtwork(),
     environment = createEnvironment(art.scene);
+  const sound = createHorseAudio(art.renderer.domElement);
   const interaction = createInteraction(art.camera, art.renderer.domElement);
   const cameraMotion = createCameraMotion(art.camera, art.renderer.domElement, event => interaction.tap(event));
   const reduced = matchMedia("(prefers-reduced-motion: reduce)");
@@ -28,6 +30,8 @@ async function start() {
     particles: art.geometry.getAttribute("position").count,
     groundDistance: 0,
     impacts: 0,
+    audio: sound.diagnostics,
+    captureAudio: () => sound.captureStream(),
     floorLayers: environment.floorLayers,
     strikeCount: 0,
     activeSpray: 0,
@@ -48,7 +52,8 @@ async function start() {
     art.wake.update(time, reduced.matches ? 0 : elapsed, pointer);
     art.scattered.visible = !reduced.matches && art.wake.active;
     environment.setPointer(pointer.point, pointer.strength);
-    environment.update(time, art.mesh);
+    const contacts = environment.update(time, art.mesh);
+    sound.update(time, contacts, art.camera);
     diagnostics.impacts = environment.impactCount;
     diagnostics.strikeCount = environment.strikeCount;
     diagnostics.activeSpray = environment.activeSpray;
@@ -88,6 +93,7 @@ async function start() {
       art.geometry.setDrawRange(0, diagnostics.particles);
       environment.setQuality(quality);
       art.wake.setQuality(quality);
+      art.hair.setQuality(Math.max(.6, quality));
       art.resize();
       total = 0;
       samples = 0;
@@ -104,6 +110,7 @@ async function start() {
     total = 0;
     samples = 0;
     diagnostics.paused = document.hidden || reduced.matches || lost;
+    sound.setPaused(diagnostics.paused);
     if (reduced.matches && !lost) art.wake.reset();
     if (!document.hidden && !lost) {
       draw();

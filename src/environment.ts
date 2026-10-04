@@ -20,9 +20,10 @@ uniform vec4 pressureHits[12];uniform int pressureCount;uniform vec4 hoofPressur
 ${WIND_GLSL}
 void main(){vec3 p=position;p.x=mod(p.x-time*speed+span,span*2.)-span;vec3 wind=windAt(p,time);
  p.z+=wind.z*.018*sin(seed*73.+time*.8);
- float contour=sin(p.x*.9+p.z*.7)+.55*sin(p.x*2.3-p.z*1.1);
+ float contour=clamp((position.y+.02)*4.,-.6,.1);
  p.y=position.y;
  float pressure=0.;
+ if(abs(p.z)<1.6){
  for(int i=0;i<4;i++){
   vec4 hoof=hoofPressure[i];vec2 delta=p.xz-hoof.xy;
   float load=exp(-dot(delta,delta)/.035)*hoof.w;
@@ -36,12 +37,13 @@ void main(){vec3 p=position;p.x=mod(p.x-time*speed+span,span*2.)-span;vec3 wind=
   p.xz+=delta/max(length(delta),.05)*energy*.15+vec2(-energy*.13,0.);
   p.y+=sin(length(delta)*20.-age*9.)*energy*.021;pressure+=energy;
  }
+ }
  vec2 d=p.xz-pointer.xz;float wake=exp(-dot(d,d)*5.)*pointer.w;p.xz+=d*min(wake,.6);p.y+=wake*.03;
  vec4 view=modelViewMatrix*vec4(p,1.);gl_Position=projectionMatrix*view;
  float scale=mix(25.,13.,band*.5)+size*8.;
  gl_PointSize=clamp(scale*pixelRatio/max(-view.z,.1),.7,(4.4-band*.9)*pixelRatio);
  float edges=(1.-smoothstep(span*.7,span,abs(p.x)))*(1.-smoothstep(8.,11.,abs(p.z)));
- float clumps=.74+.26*sin(p.x*3.1+p.z*2.7)*sin(p.z*4.3-p.x*.45);
+ float clumps=.76+.24*seed;
  alpha=mix(.93,.45,band*.5)*edges*clumps*exp(-length(p.xz)*.035);
  tone=min(1.,.78+seed*.2+pressure*.16+contour*.018);
 }`;

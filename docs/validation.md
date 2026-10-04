@@ -6,7 +6,7 @@ Four anatomical hoof tracks gate sand forces to contact phases. A bounded 24-imp
 
 Hover pulls local particle streams away from moving anatomical anchors. A damped GPU spring restores them; offsets are capped at 0.8 rendering units and velocities at 8 units/second. Separate attached and scattered passes preserve volume while keeping detached particles visible. The camera follows a restrained 20-second arc, supports damped dragging, and returns after three seconds idle. Touch taps disturb; touch drags steer.
 
-## Verification
+## Checkpoint 8 verification
 
 - 50 unit/integration tests pass. Coverage across generation, gait interpolation, force/contact logic, spring dynamics, camera motion and wind generation is 99.64% statements, 99.12% branches, and 100% functions/lines; every configured threshold exceeds 80%.
 - 14 production browser tests pass: wordless startup, resize, portrait framing, hidden-tab pause/resume, context restoration, adaptive GPU submissions/resolution, visible ground travel, bounded hoof impulses, mouse/drag behavior, reduced-motion stillness and recovery, measurable GPU scattering/reassembly, native touch gestures, and forced analytic fallback without floating-point render targets.
@@ -15,7 +15,7 @@ Hover pulls local particle streams away from moving anatomical anchors. A damped
 - Type checking/build pass; full dependency audit reports zero vulnerabilities. Final read-only code/security review found no remaining material issues.
 - Desktop, portrait and 3840×2160 frames rendered without shader or runtime errors. The motion recording shows gallop, interaction, reassembly and camera dragging.
 
-## Sustained rendering observations
+## Checkpoint 8 rendering observations
 
 Each profile warmed up for six seconds, then ran for six seconds. Continuous-hover measurements repeatedly disturbed the horse throughout both periods. Rates use actual wall-clock time with adaptive quality active.
 
@@ -56,3 +56,34 @@ The face has locally refined muzzle, jaw and ear geometry, denser deterministic 
 868 source-tail vertices are excluded from both surface sampling and the depth topology. A nine-point animated guide drives 640 seeded tapered strands, rendered as fine connected filaments with particle highlights. Roots follow the moving source attachment; delayed tips respond to gravity, shared wind and the existing pointer field. Hair consumes the body's shared force uniforms without overwriting its release decay.
 
 ![Face and strand tail checkpoint](anatomy-10.png)
+
+## Checkpoint 11 — synchronized recorded sound
+
+The same immutable strike events now trigger isolated recorded hoof transients, sand scrapes and settling grit. Variant selection and small rate changes avoid an unrelated audio loop. Gain limiting and restrained camera-relative stereo keep the horse weighted and the grain bed quiet. Click, tap or drag activates playback; M toggles mute. Hidden tabs, reduced motion and context loss stop and release voices, and resume consumes only current contacts. Pre-activation mute is preserved; missing samples leave the renderer usable.
+
+80 unit/integration tests and 20 production browser checks pass. Core coverage is 98.71% statements, 95.59% branches, 96% functions and 100% lines. The additional browser checks cover audio activation, mute, touch, loading failure, pause/recovery and distinct automatic strikes on all four tracks. Dependency audit reports zero vulnerabilities. Read-only code/security reviews found no material blockers.
+
+The final floor shader skips contact calculations outside the affected corridor and uses the already seeded clusters for variation, preserving terrain, grain counts and coarse strikes. Quality adaptation also thins complete tail strands while retaining at least 60% of them. The sparkle resolution floor remains intact.
+
+
+### Final rendering measurements
+
+Apple M3 Pro, 12-core CPU, 36 GB RAM; headless Chromium 153 with ANGLE Metal on the physical Apple GPU. Each profile warmed for six seconds and was measured for six seconds with recorded sound active. Heavy hover repeatedly disturbed the horse throughout. Portrait remains browser emulation rather than a physical phone test.
+
+| Profile | Viewport / device ratio | Mean fps | Horse particles | Quality |
+| --- | --- | --- | --- | --- |
+| desktop idle | 1440×1000 / 1 | 59.94 | 140,000 | 1.000 |
+| desktop continuous hover | 1440×1000 / 1 | 59.98 | 140,000 | 1.000 |
+| portrait idle | 390×844 / 2 | 59.97 | 68,000 | 1.000 |
+| portrait continuous hover | 390×844 / 2 | 59.98 | 68,000 | 1.000 |
+
+All four Metal profiles ran at approximately 60 fps at full anatomical density with no runtime/shader errors. [Exact source hashes and raw Metal observations](performance-11.json) identify the measured runtime. The separate [software-renderer observations](performance-11-software.json) are slower (24.63–54.08 fps); the desktop 60 fps target is not met by that CPU-rendering path. These are measured local profiles, not a claim about all devices.
+
+### Audiovisual and close-detail evidence
+
+The ten-second [preview with recorded sound](preview.mp4) contains natural gallop, hover scattering, recovery and camera dragging. The capture reports 44 sound impacts for 44 visual strikes. Decoded stereo audio peaks at -8.00 dBFS, with no clipped, nonfinite or invalid samples. [Capture and mix measurements](audio-measurements.json) preserve the counts and levels. The face, flowing tail and four successive gait frames were reviewed visually on desktop and portrait; the tail guide root is now attached exactly to the preserved moving body cap, eliminating the small source-guide gap.
+
+Subjective listening was unavailable in this agent session. The capture verifies synchronized scheduling and unclipped recorded output; naturalness and timbre are not claimed as listening-verified. Source recording provenance remains in [audio-sources.md](audio-sources.md).
+
+![Facial detail](head-11.png)
+![Connected tail strands](tail-11.png)

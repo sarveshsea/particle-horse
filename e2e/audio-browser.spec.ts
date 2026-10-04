@@ -45,5 +45,5 @@ test('context restoration restarts sound without queued contacts',async({page})=
  const supported=await page.evaluate(()=>{const gl=document.querySelector('canvas')!.getContext('webgl2')!;const extension=gl.getExtension('WEBGL_lose_context');if(!extension)return false;(window as any).__loss=extension;extension.loseContext();return true;});test.skip(!supported,'Context-loss extension unavailable');
  await page.waitForFunction(()=>(window as any).__ARTWORK.contextLost);expect(await page.evaluate(()=>(window as any).__ARTWORK.audio.activeVoices)).toBe(0);
  const hits=await page.evaluate(()=>(window as any).__ARTWORK.audio.playedImpacts);await page.waitForTimeout(300);await page.evaluate(()=>(window as any).__loss.restoreContext());await page.waitForFunction(()=>(window as any).__ARTWORK.contextLost===false);
- await page.waitForFunction((old)=>(window as any).__ARTWORK.audio.playedImpacts>old,hits);expect(await page.evaluate(()=>(window as any).__ARTWORK.audio.playedImpacts-hits)).toBeLessThanOrEqual(4);
+ await page.waitForFunction((old)=>(window as any).__ARTWORK.audio.playedImpacts>old,hits);expect(await page.evaluate((old)=>(window as any).__ARTWORK.audio.playedImpacts-old,hits)).toBeLessThanOrEqual(4);
 });

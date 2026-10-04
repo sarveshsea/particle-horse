@@ -53,7 +53,9 @@ export function refineAnatomy(source:Equine):Anatomy{
  if(groups.some(g=>g.length===0))throw new RangeError('Incomplete tail centerline');
  const tailGuide=new Float32Array(source.frameCount*guideCount*3);
  for(let f=0;f<source.frameCount;f++)for(let g=0;g<guideCount;g++)for(let a=0;a<3;a++){
-  tailGuide[(f*guideCount+g)*3+a]=groups[g].reduce((sum,id)=>sum+source.positions[(f*source.vertexCount+id)*3+a],0)/groups[g].length;
+  tailGuide[(f*guideCount+g)*3+a]=g===0
+   ? source.positions[(f*source.vertexCount+8430)*3+a]
+   : groups[g].reduce((sum,id)=>sum+source.positions[(f*source.vertexCount+id)*3+a],0)/groups[g].length;
  }
  return {mesh:{...source,positions,topology,triangleCount:topology.length/3},faceWeights,featureWeights,tailMask,tailGuide,guideCount,landmarks:EQUINE_LANDMARKS};
 }
