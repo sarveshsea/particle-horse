@@ -123,3 +123,7 @@ The tail uses normal alpha filaments, a smooth immediately opening strand bundle
 ## Checkpoint 14 — depth-aware sculptural cursor
 
 An eight-segment world-space brush now picks the animated horse triangles or procedural ground instead of a flat plane. Sweeps apply bounded directional and curling forces with depth attenuation; surface transitions, misses, and long jumps reset continuity. GPU inputs reject invalid segments. Hair consumes the identical history and its analytic roots match horse fallback displacement. Eight targeted browser checks pass for actual surface selection, restoration, dragging, touch, reduced motion, and float-target fallback. Earlier automatic four-hoof strike regression is retained.
+
+## Checkpoint 15 — botanical color and fine surfaces
+
+The meadow now has seeded linear-color emerald/olive grass, forest-green elliptical leaves, and ivory, gold, lavender, and rose five-petal blooms with cupped particle surfaces and pollen centres. Normal alpha blending preserves pigment rather than bleaching it white. The shared sculptural brush bends plants from fixed roots and lifts petal/leaf detail; adaptation retains flower heads and bush surfaces. Botanical pixel checks confirm green vegetation, colored flowers, and a neutral white horse on black. Checkpoint13 fullGitHub checks passed. Checkpoint14.1 completes future scene primitives after their RED tests arrived during14 publication; earlier tags are preserved. The rolling scene is the next iteration requested by the user.

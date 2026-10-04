@@ -8,7 +8,7 @@ import { createMeadow } from "./meadow-render";
 async function start() {
   const art = await createArtwork(),
     environment = createEnvironment(art.scene);
-  const meadow = createMeadow(art.scene, innerWidth < 600);
+  const meadow = createMeadow(art.scene, innerWidth < 600, art.wake.uniforms);
   const sound = createHorseAudio(art.renderer.domElement);
   const interaction = createInteraction(art.camera, art.renderer.domElement, art.mesh);
   const cameraMotion = createCameraMotion(art.camera, art.renderer.domElement, event => interaction.tap(event));

@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-test('white meadow persists through motion, portrait resize and reduced motion', async ({ page }) => {
+test('botanical meadow persists through motion, portrait resize and reduced motion', async ({ page }) => {
  const errors:string[]=[];
  page.on('pageerror', error=>errors.push(error.message));
  page.on('console', message=>{if(message.type()==='error')errors.push(message.text());});
