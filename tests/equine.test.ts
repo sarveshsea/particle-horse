@@ -129,3 +129,14 @@ test("surface samples carry finite smooth normals and attached fiber coordinates
       Math.hypot(...cloud.normalCoefficients.slice(i * 3, i * 3 + 3)),
     ).toBeCloseTo(1, 5);
 });
+
+test('protects facial detail with deterministic weighted surface sampling',()=>{
+ const m=decodeEquine({vertexCount:6,triangleCount:2,frameCount:1,cycleSeconds:1},new Float32Array([0,0,0,1,0,0,0,1,0,2,0,0,3,0,0,2,1,0]),new Uint32Array([0,1,2,3,4,5]));
+ const density=new Float32Array([1,1,1,8,8,8]);const a=sampleSurface(m,5000,9,density);
+ let facial=0;for(let i=0;i<5000;i++)if(a.triangles[i*3]>=3)facial++;
+ expect(facial/5000).toBeGreaterThan(.85);expect(a).toEqual(sampleSurface(m,5000,9,density));
+ expect(()=>sampleSurface(m,100,9,new Float32Array(2))).toThrow();
+ expect(()=>sampleSurface(m,100,9,new Float32Array([1,1,-1,1,1,1]))).toThrow();
+ expect(()=>sampleSurface(m,100,9,new Float32Array([1,1,NaN,1,1,1]))).toThrow();
+ expect(()=>sampleSurface(m,100,9,new Float32Array(6))).toThrow();
+});
