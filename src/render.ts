@@ -78,7 +78,8 @@ export async function createArtwork() {
   const scene = new THREE.Scene(),
     camera = new THREE.PerspectiveCamera(34, 1, 0.1, 120);
   const mesh = await loadEquine();
-  const count = innerWidth < 600 ? 68000 : 140000;
+  const compact = innerWidth < 600;
+  const count = compact ? 68000 : 140000;
   const cloud = sampleSurface(mesh, count);
   const width = 1024,
     height = Math.ceil((mesh.vertexCount * mesh.frameCount) / width),
@@ -202,5 +203,6 @@ export async function createArtwork() {
     resize,
     setTime,
     mesh,
+    frameBudget: 1000 / (compact ? 30 : 60),
   };
 }

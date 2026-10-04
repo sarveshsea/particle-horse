@@ -9,8 +9,8 @@ test("quality falls on slow frames and recovers conservatively", () => {
   expect(qualityForFrame(0.5, NaN)).toBe(0.5);
 });
 
-test("adapts to a 60 fps desktop budget and a 30 fps compact budget",()=>{
- expect(qualityForFrame(1,22)).toBeLessThan(1);
- expect(qualityForFrame(.5,33,1000/30)).toBeGreaterThan(.5);
- expect(qualityForFrame(.5,40,1000/30)).toBeLessThan(.5);
+test("adapts to a 60 fps desktop budget and a 30 fps compact budget", () => {
+  expect(qualityForFrame(1, 22)).toBeLessThan(1);
+  expect(qualityForFrame(0.5, 33, 1000 / 30)).toBeGreaterThan(0.5);
+  expect(qualityForFrame(0.5, 40, 1000 / 30)).toBeLessThan(0.5);
 });

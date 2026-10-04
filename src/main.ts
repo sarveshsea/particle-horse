@@ -47,7 +47,7 @@ async function start() {
     last = now;
     if (++frame % 90 === 0 && samples) {
       diagnostics.averageFrameMs = total / samples;
-      quality = qualityForFrame(quality, total / samples);
+      quality = qualityForFrame(quality, total / samples, art.frameBudget);
       diagnostics.quality = quality;
       art.material.uniforms.density.value = quality;
       diagnostics.particles = Math.floor(
