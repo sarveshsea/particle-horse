@@ -1,0 +1,53 @@
+{
+  "vertexCount": 8431,
+  "frameCount": 24,
+  "triangleCount": 16843,
+  "scale": 2.6,
+  "source": "https://people.csail.mit.edu/sumner/research/deftransfer/data/horse-gallop.zip",
+  "cycleSeconds": 0.62,
+  "bounds": {
+    "min": [
+      -2.0782059999999998,
+      0.0,
+      -0.32039280000000003
+    ],
+    "max": [
+      1.3805454,
+      2.29430214,
+      0.3155386
+    ]
+  },
+  "format": "Little-endian float32 XYZ, frame-major; little-endian uint32 triangle indices",
+  "groundOffset": 0.051893140000000004,
+  "sourceFrames": [
+    "horse-gallop-01.obj",
+    "horse-gallop-02.obj",
+    "horse-gallop-03.obj",
+    "horse-gallop-04.obj",
+    "horse-gallop-05.obj",
+    "horse-gallop-06.obj",
+    "horse-gallop-07.obj",
+    "horse-gallop-08.obj",
+    "horse-gallop-09.obj",
+    "horse-gallop-10.obj",
+    "horse-gallop-11.obj",
+    "horse-gallop-12.obj",
+    "horse-gallop-13.obj",
+    "horse-gallop-14.obj",
+    "horse-gallop-15.obj",
+    "horse-gallop-16.obj",
+    "horse-gallop-17.obj",
+    "horse-gallop-18.obj",
+    "horse-gallop-19.obj",
+    "horse-gallop-20.obj",
+    "horse-gallop-21.obj",
+    "horse-gallop-22.obj",
+    "horse-gallop-23.obj",
+    "horse-gallop-24.obj"
+  ],
+  "stridesPerSequence": 1,
+  "sourceFrameCount": 48,
+  "discardedDuplicateStrideMaxDelta": 6.1000000000005494e-05,
+  "discardedDuplicateStrideRmsDelta": 3.5133586371078462e-06,
+  "axisTransform": "worldX = sourceZ * scale; worldY = (sourceY - globalMinY) * scale; worldZ = -sourceX * scale"
+}
