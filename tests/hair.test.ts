@@ -45,3 +45,16 @@ test('hair coordinates reject nonfinite times and clamp strand endpoints',()=>{
  expect(hairPoint(guide,0,-1,strand)).toEqual(hairPoint(guide,0,0,strand));
  expect(hairPoint(guide,0,2,strand)).toEqual(hairPoint(guide,0,1,strand));
 });
+
+test('root bundle grows from a small croup footprint while neighboring strand samples are continuous',()=>{
+ const cloud=generateHair(32,48),roots=[];
+ for(let i=0;i<32;i++){
+  const strand=cloud.strand.slice(i*48*4,i*48*4+4),root=hairPoint(guide,0,0,strand);
+  roots.push(root.join(','));
+  expect(Math.hypot(root[0],root[1]-1,root[2])).toBeLessThan(.03);
+  expect(root[1]).toBeGreaterThanOrEqual(1);
+  const next=hairPoint(guide,0,.001,strand);
+  expect(Math.hypot(...next.map((x,a)=>x-root[a]))).toBeLessThan(.003);
+ }
+ expect(new Set(roots).size).toBe(32);
+});

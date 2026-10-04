@@ -37,3 +37,9 @@ describe('audio node ownership',()=>{
  it('honors mute chosen before the first activation',async()=>{const {win,canvas,sound}=setup();win.send('keydown',{key:'m'});canvas.send('pointerdown',{isTrusted:true});await ready();expect(Context.last.nodes[0].gain.value).toBe(0);sound.dispose();});
  it('disconnects every per-voice and ambience node when paused',async()=>{const {canvas,sound}=setup();canvas.send('pointerdown',{isTrusted:true});await ready();sound.update(1,[{id:'release',hoof:0,born:1,x:0,y:0,z:0,strength:1,contactDuration:.12}],{position:{x:0,z:6}});sound.setPaused(true);for(const node of Context.last.nodes.slice(1))expect(node.disconnect).toHaveBeenCalledTimes(1);for(const source of Context.last.sources)expect(source.disconnect).toHaveBeenCalledTimes(1);sound.dispose();});
 });
+
+import { contactMix } from '../src/audio-mix';
+describe('clean contact mix',()=>{
+ it('keeps grit short and light without slowing recorded transients',()=>{for(let i=0;i<4;i++){const mix=contactMix(1,i);expect(mix.hoof.rate).toBeGreaterThanOrEqual(.98);expect(mix.sand.rate).toBeGreaterThanOrEqual(1);expect(mix.hoof.duration).toBeLessThanOrEqual(.15);expect(mix.sand.duration).toBeLessThanOrEqual(.19);expect(mix.sand.level).toBeLessThan(mix.hoof.level*.3);expect(mix.sand.delay).toBeGreaterThan(0);}});
+ it('bounds gains and rejects nonfinite contact input',()=>{expect(contactMix(20,0)).toEqual(contactMix(1,0));expect(contactMix(-2,0).hoof.level).toBe(0);expect(()=>contactMix(NaN,0)).toThrow();expect(()=>contactMix(1,Infinity)).toThrow();});
+});

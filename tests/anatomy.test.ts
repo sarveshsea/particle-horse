@@ -48,3 +48,13 @@ test('tail guide roots attach exactly to the preserved moving body cap', () => {
   expect(result.tailGuide.slice(root,root+3)).toEqual(source.positions.slice(attachment,attachment+3));
  }
 });
+
+test('tail originates on central dorsal croup and its proximal dock stays near attachment height',()=>{
+ const source=asset(),result=refineAnatomy(source);
+ for(let f=0;f<source.frameCount;f++){
+  const root=(f*source.vertexCount+10)*3,guide=f*result.guideCount*3;
+  for(let a=0;a<3;a++)expect(result.tailGuide[guide+a]).toBe(source.positions[root+a]);
+  expect(Math.abs(result.tailGuide[guide+2])).toBeLessThan(.02);
+  for(let g=1;g<=2;g++)expect(Math.abs(result.tailGuide[guide+g*3+1]-result.tailGuide[guide+1])).toBeLessThan(.04);
+ }
+});
