@@ -1,6 +1,6 @@
 import {test,expect} from '@playwright/test';
 import {PNG} from 'pngjs';
-type Stats={time:number;frames:number;quality:number;averageFrameMs:number;paused:boolean;contextLost:boolean;particles:number};
+type Stats={time:number;frames:number;quality:number;averageFrameMs:number;paused:boolean;contextLost:boolean;particles:number;pixelRatio:number};
 const stats=(page:import('@playwright/test').Page)=>page.evaluate(()=> (window as unknown as {__ARTWORK:Stats}).__ARTWORK);
 test('wordless canvas animates and resizes without runtime errors',async({page})=>{
  const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
@@ -56,4 +56,8 @@ test('reduces actual rendering density under sustained slow frames',async({page}
  await page.goto('/');
  await expect.poll(async()=>(await stats(page))?.quality,{timeout:12000}).toBeLessThan(1);
  expect((await stats(page)).particles).toBeLessThan(76000);
+ await page.setViewportSize({width:844,height:390});
+ await expect.poll(async()=>(await page.locator('canvas').boundingBox())?.width).toBe(844);
+ const ratio=await page.evaluate(()=>document.querySelector('canvas')!.width/innerWidth);
+ expect(ratio).toBeLessThan(await page.evaluate(()=>Math.min(devicePixelRatio,1.75)));
 });
