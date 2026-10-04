@@ -27,7 +27,9 @@
     8429
   ],
   "tailVertexCount": 868,
-  "preservedRootCapVertex": 8430,
+  "preservedHindquarterCapVertex": 8430,
+  "tailAttachmentVertex": 10,
+  "tailAttachment": "Central dorsal posterior croup; root guide exactly follows source vertex 10.",
   "tailGuideCount": 9,
   "correctionsRenderingUnits": {
     "eyeRecess": 0.009,
@@ -36,7 +38,7 @@
     "jawDefinition": 0.004,
     "earRidge": 0.002
   },
-  "implementation": "src/anatomy.ts; guide centroids use fixed first-pose length bins, same vertex IDs in every frame.",
+  "implementation": "src/anatomy.ts; guide centroids use fixed first-pose length bins, same vertex IDs in every frame. First guide attaches to central croup vertex 10; proximal guide heights are flattened into a coherent dock.",
   "restLandmarkPositions": {
     "eyes": [
       [

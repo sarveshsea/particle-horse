@@ -1,3 +1,4 @@
+import { contactMix } from './audio-mix';
 import { scheduleContacts, type AudioContact } from './audio-events';
 type AudioCamera = { position: { x: number; z: number } };
 export function createHorseAudio(canvas: HTMLCanvasElement) {
@@ -13,9 +14,9 @@ export function createHorseAudio(canvas: HTMLCanvasElement) {
   let releaseAmbience: (() => void) | undefined;
   const startAmbience = () => {
     if (!context || !master || !ready || paused || ambience) return;
-    ambience = context.createBufferSource(); ambience.buffer = buffers[8]; ambience.loop = true; ambience.playbackRate.value = .28;
-    const filter = context.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 1800;
-    const gain = context.createGain(); gain.gain.value = .012;
+    ambience = context.createBufferSource(); ambience.buffer = buffers[8]; ambience.loop = true; ambience.playbackRate.value = 1;
+    const filter = context.createBiquadFilter(); filter.type = 'highpass'; filter.frequency.value = 1800;
+    const gain = context.createGain(); gain.gain.value = .004;
     ambience.connect(filter); filter.connect(gain); gain.connect(master); ambience.start();
     const source = ambience;
     releaseAmbience = () => { source.stop(); source.disconnect(); filter.disconnect(); gain.disconnect(); };
@@ -62,14 +63,14 @@ export function createHorseAudio(canvas: HTMLCanvasElement) {
   };
   canvas.addEventListener('pointerdown', unlock);
   window.addEventListener('keydown', mute);
-  const play = (buffer: AudioBuffer, start: number, level: number, pan: number, rate: number, sand: boolean) => {
+  const play = (buffer: AudioBuffer, start: number, level: number, pan: number, rate: number, sand: boolean, duration: number) => {
     if (!context || !master || voices.size >= 24) return;
     const source = context.createBufferSource(); source.buffer = buffer; source.playbackRate.value = rate;
     const gain = context.createGain(); gain.gain.value = level;
     const panner = context.createStereoPanner(); panner.pan.value = pan;
     let filter: BiquadFilterNode | undefined;
     if (sand) {
-      filter = context.createBiquadFilter(); filter.type = 'highpass'; filter.frequency.value = 800;
+      filter = context.createBiquadFilter(); filter.type = 'highpass'; filter.frequency.value = 1400;
       source.connect(filter); filter.connect(gain);
     } else source.connect(gain);
     gain.connect(panner); panner.connect(master);
@@ -81,7 +82,7 @@ export function createHorseAudio(canvas: HTMLCanvasElement) {
     };
     voices.set(source, release); diagnostics.activeVoices = voices.size;
     source.onended = release;
-    source.start(start);
+    source.start(start, 0, duration);
   };
   const update = (time: number, events: readonly AudioContact[], camera: AudioCamera) => {
     const scheduled = scheduleContacts(seen, events, time); seen = scheduled.seen;
@@ -90,13 +91,12 @@ export function createHorseAudio(canvas: HTMLCanvasElement) {
     for (const event of scheduled.events) {
       if (voices.size >= 24) break;
       const variant = Math.abs(Math.round(event.born * 100) + event.hoof) % 4;
-      const strength = Math.min(1, Math.max(.1, event.strength));
+      const mix = contactMix(event.strength, variant);
       const cameraLength = Math.max(.1, Math.hypot(camera.position.x, camera.position.z));
       const pan = Math.max(-.65, Math.min(.65, (event.x * camera.position.z - event.z * camera.position.x) / cameraLength * .22));
       const now = context.currentTime;
-      play(buffers[variant], now, .40 * strength, pan, .94 + variant * .035, false);
-      play(buffers[4 + variant], now + .025, .18 * strength, pan, .91 + variant * .04, true);
-      play(buffers[4 + (variant + 1) % 4], now + Math.min(.16,event.contactDuration), .045 * strength, pan * .8, .68, true);
+      play(buffers[variant], now, mix.hoof.level, pan, mix.hoof.rate, false, mix.hoof.duration);
+      play(buffers[4 + variant], now + mix.sand.delay, mix.sand.level, pan, mix.sand.rate, true, mix.sand.duration);
       diagnostics.playedImpacts++;
     }
   };

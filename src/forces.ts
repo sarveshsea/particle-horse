@@ -32,14 +32,14 @@ export function extractHooves(mesh: Equine): readonly HoofTrack[] {
 }
 export function hoofAt(mesh: Equine,track: HoofTrack,time: number): HoofPosition {
  const frame=frameAt(time,mesh.frameCount,mesh.cycleSeconds);
- let x=0,y=0,z=0;
+ let x=0,y=Infinity,z=0;
  for(const vertex of track.vertices){
   const a=(frame.a*mesh.vertexCount+vertex)*3,b=(frame.b*mesh.vertexCount+vertex)*3;
   x+=mesh.positions[a]*(1-frame.mix)+mesh.positions[b]*frame.mix;
-  y+=mesh.positions[a+1]*(1-frame.mix)+mesh.positions[b+1]*frame.mix;
+  y=Math.min(y,mesh.positions[a+1]*(1-frame.mix)+mesh.positions[b+1]*frame.mix);
   z+=mesh.positions[a+2]*(1-frame.mix)+mesh.positions[b+2]*frame.mix;
  }
- return {x:x/track.vertices.length,y:y/track.vertices.length,z:z/track.vertices.length};
+ return {x:x/track.vertices.length,y,z:z/track.vertices.length};
 }
 export function contactStrength(hoof: HoofPosition,track: HoofTrack): number {
  const height=Math.max(0,hoof.y-track.floor);
@@ -55,8 +55,8 @@ export const SPRAY_GLSL=`
 vec3 sprayPoint(vec4 hit,float age,float seed,float t,float groundSpeed){
  float angle=seed*117.3,radial=.4+fract(seed*71.)*1.9;
  vec3 origin=vec3(hit.x,-.012,hit.y);
- vec3 velocity=vec3(-.6+cos(angle)*radial,1.25+fract(seed*19.)*1.65,sin(angle)*radial*.6)*(.7+hit.w*.3);
- vec3 p=origin+velocity*age+vec3(-groundSpeed*age,-4.9*age*age,0.)+windAt(origin,t)*age*age*.7;
+ vec3 velocity=vec3(-.6+cos(angle)*radial,3.8+fract(seed*19.)*2.0,sin(angle)*radial*.6)*(.7+hit.w*.3);
+ vec3 p=origin+velocity*age+vec3(-groundSpeed*age,-10.0*age*age,0.)+windAt(origin,t)*age*age*.7;
  p.y=max(p.y,-.014);return p;
 }`;
 export function sprayPoint(contact:Impact,age:number,seed:number):HoofPosition{
@@ -66,7 +66,7 @@ export function sprayPoint(contact:Impact,age:number,seed:number):HoofPosition{
  const fract=(value:number)=>value-Math.floor(value),angle=seed*117.3,radial=.4+fract(seed*71)*1.9,factor=.7+contact.strength*.3;
  return {
   x:contact.x+(-.6+Math.cos(angle)*radial)*factor*age-GROUND_SPEED*age+wind.x*age*age*.7,
-  y:Math.max(-.014,-.012+(1.25+fract(seed*19)*1.65)*factor*age-4.9*age*age+wind.y*age*age*.7),
+  y:Math.max(-.014,-.012+(3.8+fract(seed*19)*2.0)*factor*age-10.0*age*age+wind.y*age*age*.7),
   z:contact.z+Math.sin(angle)*radial*.6*factor*age+wind.z*age*age*.7,
  };
 }

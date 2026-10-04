@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 const url = process.env.ARTWORK_URL ?? 'http://127.0.0.1:4175';
 const warmupSeconds = 6;
 const sampleSeconds = 6;
-const output = fileURLToPath(new URL('../docs/performance-11.json', import.meta.url));
+const output = fileURLToPath(new URL('../docs/performance-12.json', import.meta.url));
 const profiles = [
   { profile: 'desktop', width: 1440, height: 1000, dpr: 1 },
   { profile: 'portrait', width: 390, height: 844, dpr: 2 },
@@ -116,7 +116,7 @@ try {
     }
   }
   const sourceHashes = Object.fromEntries(await Promise.all(
-    ['main', 'render', 'anatomy', 'hair', 'environment', 'contacts', 'sand', 'forces', 'audio', 'audio-events', 'particle-wake', 'camera-motion', 'interaction', 'wind', 'dynamics', 'equine'].map(async name => {
+    ['meadow', 'meadow-render', 'audio-mix', 'main', 'render', 'anatomy', 'hair', 'environment', 'contacts', 'sand', 'forces', 'audio', 'audio-events', 'particle-wake', 'camera-motion', 'interaction', 'wind', 'dynamics', 'equine'].map(async name => {
       const path = `src/${name}.ts`;
       return [path, createHash('sha256').update(await readFile(new URL(`../${path}`, import.meta.url))).digest('hex')];
     })

@@ -54,8 +54,19 @@ export function refineAnatomy(source:Equine):Anatomy{
  const tailGuide=new Float32Array(source.frameCount*guideCount*3);
  for(let f=0;f<source.frameCount;f++)for(let g=0;g<guideCount;g++)for(let a=0;a<3;a++){
   tailGuide[(f*guideCount+g)*3+a]=g===0
-   ? source.positions[(f*source.vertexCount+8430)*3+a]
+   ? source.positions[(f*source.vertexCount+10)*3+a]
    : groups[g].reduce((sum,id)=>sum+source.positions[(f*source.vertexCount+id)*3+a],0)/groups[g].length;
+ }
+ for(let f=0;f<source.frameCount;f++){
+  const root=f*guideCount*3,rootY=tailGuide[root+1];
+  for(let g=1;g<guideCount;g++){
+   const u=g/(guideCount-1),offset=root+g*3;
+   const rise=tailGuide[offset+1]-rootY;
+   const dock=smooth(0,.4,u);
+   const transition=smooth(.25,.6,u);
+   tailGuide[offset+1]=rootY+.035*Math.tanh(rise/.035)*(1-transition)+rise*(.12+.38*dock)*transition;
+   tailGuide[offset+2]*=smooth(0,.6,u);
+  }
  }
  return {mesh:{...source,positions,topology,triangleCount:topology.length/3},faceWeights,featureWeights,tailMask,tailGuide,guideCount,landmarks:EQUINE_LANDMARKS};
 }

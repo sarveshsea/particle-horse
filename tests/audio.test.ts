@@ -27,7 +27,7 @@ class Context {
 const setup=()=>{const win=new Target(),canvas=new Target();vi.stubGlobal('window',win);vi.stubGlobal('AudioContext',Context);vi.stubGlobal('fetch',vi.fn().mockResolvedValue({ok:true,arrayBuffer:async()=>new ArrayBuffer(4)}));const sound=createHorseAudio(canvas as unknown as HTMLCanvasElement);return {win,canvas,sound};};
 const ready=async()=>{await vi.waitFor(()=>expect(Context.last.decodeAudioData).toHaveBeenCalledTimes(9));await Promise.resolve();};
 describe('unlocked recorded audio',()=>{
- it('loads once and captures a unique synchronized impact with bounded voices',async()=>{const {canvas,sound}=setup();canvas.send('pointerdown',{isTrusted:true});await ready();expect(sound.diagnostics.status).toBe('ready');canvas.send('pointerdown',{isTrusted:true});expect(sound.captureStream()).toEqual({id:'capture'});const event={id:'0',hoof:0,born:1,x:1,y:0,z:0,strength:1,contactDuration:.12};sound.update(1,[event],{position:{x:2,z:6}});sound.update(1,[event],{position:{x:2,z:6}});expect(sound.diagnostics.playedImpacts).toBe(1);expect(sound.diagnostics.activeVoices).toBe(3);Context.last.sources[1].onended?.();expect(sound.diagnostics.activeVoices).toBe(2);sound.dispose();expect(Context.last.close).toHaveBeenCalled();});
+ it('loads once and captures a unique synchronized impact with bounded voices',async()=>{const {canvas,sound}=setup();canvas.send('pointerdown',{isTrusted:true});await ready();expect(sound.diagnostics.status).toBe('ready');canvas.send('pointerdown',{isTrusted:true});expect(sound.captureStream()).toEqual({id:'capture'});const event={id:'0',hoof:0,born:1,x:1,y:0,z:0,strength:1,contactDuration:.12};sound.update(1,[event],{position:{x:2,z:6}});sound.update(1,[event],{position:{x:2,z:6}});expect(sound.diagnostics.playedImpacts).toBe(1);expect(sound.diagnostics.activeVoices).toBe(2);Context.last.sources[1].onended?.();expect(sound.diagnostics.activeVoices).toBe(1);sound.dispose();expect(Context.last.close).toHaveBeenCalled();});
  it('mutes smoothly and pauses without queued replay',async()=>{const {canvas,win,sound}=setup();canvas.send('pointerdown',{isTrusted:true});await ready();win.send('keydown',{key:'x'});expect(sound.diagnostics.muted).toBe(false);win.send('keydown',{key:'M'});expect(sound.diagnostics.muted).toBe(true);sound.setPaused(true);sound.setPaused(true);expect(Context.last.suspend).toHaveBeenCalledTimes(1);const event={id:'paused',hoof:0,born:1,x:0,y:0,z:0,strength:1,contactDuration:.12};sound.update(1,[event],{position:{x:0,z:6}});sound.setPaused(false);sound.update(1,[event],{position:{x:0,z:6}});expect(sound.diagnostics.playedImpacts).toBe(0);sound.dispose();});
  it('handles unavailable assets without breaking the canvas',async()=>{const {canvas,sound}=setup();vi.stubGlobal('fetch',vi.fn().mockResolvedValue({ok:false}));canvas.send('pointerdown',{isTrusted:true});await vi.waitFor(()=>expect(sound.diagnostics.status).toBe('unavailable'));sound.dispose();});
  it('caps voices under dense input',async()=>{const {canvas,sound}=setup();canvas.send('pointerdown',{isTrusted:true});await ready();const events=Array.from({length:30},(_,i)=>({id:String(i),hoof:i%4,born:1,x:0,y:0,z:0,strength:1,contactDuration:.1}));sound.update(1,events,{position:{x:0,z:6}});expect(sound.diagnostics.activeVoices).toBe(24);sound.dispose();});
@@ -42,4 +42,14 @@ import { contactMix } from '../src/audio-mix';
 describe('clean contact mix',()=>{
  it('keeps grit short and light without slowing recorded transients',()=>{for(let i=0;i<4;i++){const mix=contactMix(1,i);expect(mix.hoof.rate).toBeGreaterThanOrEqual(.98);expect(mix.sand.rate).toBeGreaterThanOrEqual(1);expect(mix.hoof.duration).toBeLessThanOrEqual(.15);expect(mix.sand.duration).toBeLessThanOrEqual(.19);expect(mix.sand.level).toBeLessThan(mix.hoof.level*.3);expect(mix.sand.delay).toBeGreaterThan(0);}});
  it('bounds gains and rejects nonfinite contact input',()=>{expect(contactMix(20,0)).toEqual(contactMix(1,0));expect(contactMix(-2,0).hoof.level).toBe(0);expect(()=>contactMix(NaN,0)).toThrow();expect(()=>contactMix(1,Infinity)).toThrow();});
+});
+
+import { readFileSync } from 'node:fs';
+it('ships isolated hoof attacks and short sand releases as finite bounded PCM',()=>{
+ for(const kind of ['hoof','sand'])for(let i=0;i<4;i++){
+  const bytes=readFileSync(`public/audio/${kind}-${i}.wav`);const data=bytes.indexOf('data')+8;const rate=bytes.readUInt32LE(24);const count=(bytes.length-data)/2;
+  expect(count/rate).toBeLessThanOrEqual(kind==='hoof'?.131:.171);
+  let peak=0,at=0;for(let j=0;j<count;j++){const value=Math.abs(bytes.readInt16LE(data+j*2));if(value>peak){peak=value;at=j;}}
+  expect(peak).toBeLessThan(23000);expect(peak).toBeGreaterThan(0);if(kind==='hoof')expect(at/rate).toBeLessThan(.04);
+ }
 });

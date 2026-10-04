@@ -1,0 +1,1150 @@
+{
+  "sourceHashes": {
+    "src/meadow.ts": "74e1dcd254a53692ff8b9c20116df1893cd2816004c17ce94620cb79494aae09",
+    "src/meadow-render.ts": "7b9a9cec8f5750e78ef930d7d45663fa482caf18a08cd068b8cddf71ee0259be",
+    "src/audio-mix.ts": "a30b2319b25aee6152ba6507ccc878c72441756bb6c7b392c9aaf5ec095fea90",
+    "src/main.ts": "54eaf191d88a4cc34efb0749c2ff0d7b3fafba300c90750f980855902fe3f8aa",
+    "src/render.ts": "d4921d56b9dd3e3afe25aeb87b917d56065e9d383453854e768a7618372bf32a",
+    "src/anatomy.ts": "9dde3f5a742ccf958a0bc14ae271fe1ad2f455abd4d485b48377189bdf61e89c",
+    "src/hair.ts": "f19d1d7ae4772ba62a5ee6e8495abeeaf85fd10e08fe75cd32c5168a7d94811a",
+    "src/environment.ts": "d61b7ab364857ef5d9cdbeb1191468e7ef701be81fdfda1472374cc0e2ecef0d",
+    "src/contacts.ts": "f83c6df28e6da79e1a3ba8603e0b7a63c3ea86225242d107f3504ffe8e8ab5fc",
+    "src/sand.ts": "c7efd17e18ea5829940dc3575b96c9e38509b5eae376d39b9426178166d63a36",
+    "src/forces.ts": "6f6cfa88bfbb078a9e0cc7c796681a249a7fe3bf5578e88b51884d7314dbd163",
+    "src/audio.ts": "5dac5abb60b6f8398948cabaef640c6eb1adeaf982cd17fb2cc73a51d7fbb255",
+    "src/audio-events.ts": "f16fedee4b793ec92d41cc8be3ddf1912760b6fd601f928d7b014f1fb7a19162",
+    "src/particle-wake.ts": "e8715244704069e79087a3af944b0c20e182bd397e244bb7b1f074f69fa2c5d0",
+    "src/camera-motion.ts": "2f3b5e35bef2ea8593981e70317d0a9fc9bf84e73373669a8139e73396762b93",
+    "src/interaction.ts": "a55373f676b9040616cb9e3651b340b9f11e37788f4e0f31a7c27485b28ec6f6",
+    "src/wind.ts": "18aeddaddaf3e5e57c4bcd42332602821da07555f8047624ffb185b8044b51d4",
+    "src/dynamics.ts": "75babb469f71fa3af21552300f6a854a65787b6aa47cf369b88cfe2ebe3e06a5",
+    "src/equine.ts": "5c3bb6bde7a409ae6354ad18b28b7f809ca7a2f4df9a751ff5443456ce579cc2"
+  },
+  "date": "2026-10-04T16:26:32.065Z",
+  "revision": "e522fb5f9a33a6d7b0caff30c96ea895212efc59",
+  "url": "http://127.0.0.1:4175",
+  "warmupSeconds": 6,
+  "sampleSeconds": 6,
+  "method": "Sequential headless Chromium profiles. FPS uses artwork rendered-frame delta divided by actual browser wall-clock duration. Heavy hover dispatches mouse pointer events every 16 ms across the horse. Portrait is viewport/DPR emulation, not physical mobile hardware.",
+  "profiles": [
+    {
+      "profile": "desktop",
+      "width": 1440,
+      "height": 1000,
+      "dpr": 1,
+      "interaction": false,
+      "gpu": "ANGLE (Apple, ANGLE Metal Renderer: Apple M3 Pro, Unspecified Version)",
+      "webglVersion": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+      "elapsedMs": 6004.899999976158,
+      "framesRendered": 360,
+      "fps": 59.95103998425108,
+      "start": {
+        "time": 6.449800000000019,
+        "frames": 385,
+        "quality": 0.9550000000000001,
+        "particles": 133700,
+        "averageFrameMs": 16.666666666666668,
+        "simulation": "gpu",
+        "audio": {
+          "unlocked": true,
+          "muted": false,
+          "activeVoices": 0,
+          "playedImpacts": 26,
+          "status": "ready"
+        },
+        "wakeStrength": 0,
+        "activeSpray": 6144,
+        "impacts": 8,
+        "strikeCount": 28,
+        "floorLayers": 3,
+        "floor": [
+          17753,
+          7932,
+          3565
+        ],
+        "cameraYaw": 0.6026343816931249,
+        "paused": false,
+        "contextLost": false,
+        "drawingBuffer": {
+          "width": 1407,
+          "height": 977
+        }
+      },
+      "end": {
+        "time": 12.449499999999974,
+        "frames": 745,
+        "quality": 1,
+        "particles": 140000,
+        "averageFrameMs": 16.665555555555553,
+        "simulation": "gpu",
+        "audio": {
+          "unlocked": true,
+          "muted": false,
+          "activeVoices": 0,
+          "playedImpacts": 53,
+          "status": "ready"
+        },
+        "wakeStrength": 0,
+        "activeSpray": 7680,
+        "impacts": 7,
+        "strikeCount": 55,
+        "floorLayers": 3,
+        "floor": [
+          18000,
+          8500,
+          4000
+        ],
+        "cameraYaw": 0.256984398247484,
+        "paused": false,
+        "contextLost": false,
+        "drawingBuffer": {
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      "samples": [
+        {
+          "elapsedMs": 1006.1000000238419,
+          "time": 7.44970000000003,
+          "frames": 445,
+          "quality": 0.9800000000000001,
+          "particles": 137200,
+          "averageFrameMs": 16.665555555555553,
+          "simulation": "gpu",
+          "audio": {
+            "unlocked": true,
+            "muted": false,
+            "activeVoices": 0,
+            "playedImpacts": 30,
+            "status": "ready"
+          },
+          "wakeStrength": 0,
+          "activeSpray": 6144,
+          "impacts": 8,
+          "strikeCount": 32,
+          "floorLayers": 3,
+          "floor": [
+            17891,
+            8246,
+            3802
+          ],
+          "cameraYaw": 0.5665933179597037,
+          "paused": false,
+          "contextLost": false,
+          "drawingBuffer": {
+            "width": 1425,
+            "height": 989
+          }
+        },
+        {
+          "elapsedMs": 2003.3999999761581,
+          "time": 8.44970000000003,
+          "frames": 505,
+          "quality": 0.9800000000000001,
+          "particles": 137200,
+          "averageFrameMs": 16.665555555555553,
+          "simulation": "gpu",
+          "audio": {
+            "unlocked": true,
+            "muted": false,
+            "activeVoices": 0,
+            "playedImpacts": 34,
+            "status": "ready"
+          },
+          "wakeStrength": 0,
+          "activeSpray": 6144,
+          "impacts": 6,
+          "strikeCount": 36,
+          "floorLayers": 3,
+          "floor": [
+            17891,
+            8246,
+            3802
+          ],
+          "cameraYaw": 0.5142420777120588,
+          "paused": false,
+          "contextLost": false,
+          "drawingBuffer": {
+            "width": 1425,
+            "height": 989
+          }
+        },
+        {
+          "elapsedMs": 3005.399999976158,
+          "time": 9.449700000000014,
+          "frames": 565,
+          "quality": 1,
+          "particles": 140000,
+          "averageFrameMs": 16.665555555555553,
+          "simulation": "gpu",
+          "audio": {
+            "unlocked": true,
+            "muted": false,
+            "activeVoices": 4,
+            "playedImpacts": 40,
+            "status": "ready"
+          },
+          "wakeStrength": 0,
+          "activeSpray": 9216,
+          "impacts": 7,
+          "strikeCount": 42,
+          "floorLayers": 3,
+          "floor": [
+            18000,
+            8500,
+            4000
+          ],
+          "cameraYaw": 0.45070797019790293,
+          "paused": false,
+          "contextLost": false,
+          "drawingBuffer": {
+            "width": 1440,
+            "height": 1000
+          }
+        },
+        {
+          "elapsedMs": 4000.699999988079,
+          "time": 10.449600000000002,
+          "frames": 625,
+          "quality": 1,
+          "particles": 140000,
+          "averageFrameMs": 16.666666666666668,
+          "simulation": "gpu",
+          "audio": {
+            "unlocked": true,
+            "muted": false,
+            "activeVoices": 3,
+            "playedImpacts": 45,
+            "status": "ready"
+          },
+          "wakeStrength": 0,
+          "activeSpray": 10752,
+          "impacts": 8,
+          "strikeCount": 47,
+          "floorLayers": 3,
+          "floor": [
+            18000,
+            8500,
+            4000
+          ],
+          "cameraYaw": 0.3822173789252981,
+          "paused": false,
+          "contextLost": false,
+          "drawingBuffer": {
+            "width": 1440,
+            "height": 1000
+          }
+        },
+        {
+          "elapsedMs": 5005.399999976158,
+          "time": 11.449499999999986,
+          "frames": 685,
+          "quality": 1,
+          "particles": 140000,
+          "averageFrameMs": 16.666666666666668,
+          "simulation": "gpu",
+          "audio": {
+            "unlocked": true,
+            "muted": false,
+            "activeVoices": 1,
+            "playedImpacts": 49,
+            "status": "ready"
+          },
+          "wakeStrength": 0,
+          "activeSpray": 9216,
+          "impacts": 8,
+          "strikeCount": 51,
+          "floorLayers": 3,
+          "floor": [
+            18000,
+            8500,
+            4000
+          ],
+          "cameraYaw": 0.31546712497035995,
+          "paused": false,
+          "contextLost": false,
+          "drawingBuffer": {
+            "width": 1440,
+            "height": 1000
+          }
+        },
+        {
+          "elapsedMs": 6004.699999988079,
+          "time": 12.449499999999974,
+          "frames": 745,
+          "quality": 1,
+          "particles": 140000,
+          "averageFrameMs": 16.665555555555553,
+          "simulation": "gpu",
+          "audio": {
+            "unlocked": true,
+            "muted": false,
+            "activeVoices": 0,
+            "playedImpacts": 53,
+            "status": "ready"
+          },
+          "wakeStrength": 0,
+          "activeSpray": 7680,
+          "impacts": 7,
+          "strikeCount": 55,
+          "floorLayers": 3,
+          "floor": [
+            18000,
+            8500,
+            4000
+          ],
+          "cameraYaw": 0.256984398247484,
+          "paused": false,
+          "contextLost": false,
+          "drawingBuffer": {
+            "width": 1440,
+            "height": 1000
+          }
+        }
+      ],
+      "errors": []
+    },
+    {
+      "profile": "desktop",
+      "width": 1440,
+      "height": 1000,
+      "dpr": 1,
+      "interaction": true,
+      "gpu": "ANGLE (Apple, ANGLE Metal Renderer: Apple M3 Pro, Unspecified Version)",
+      "webglVersion": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+      "elapsedMs": 6004.399999976158,
+      "framesRendered": 360,
+      "fps": 59.956032243259855,
+      "start": {
+        "time": 6.466400000000026,
+        "frames": 388,
+        "quality": 1,
+        "particles": 140000,
+        "averageFrameMs": 16.665555555555553,
+        "simulation": "gpu",
+        "audio": {
+          "unlocked": true,
+          "muted": false,
+          "activeVoices": 0,
+          "playedImpacts": 26,
+          "status": "ready"
+        },
+        "wakeStrength": 0.4199652437752397,
+        "activeSpray": 6144,
+        "impacts": 8,
+        "strikeCount": 28,
+        "floorLayers": 3,
+        "floor": [
+          18000,
+          8500,
+          4000
+        ],
+        "cameraYaw": 0.6021907011375632,
+        "paused": false,
+        "contextLost": false,
+        "drawingBuffer": {
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      "end": {
+        "time": 12.466099999999974,
+        "frames": 748,
+        "quality": 1,
+        "particles": 140000,
+        "averageFrameMs": 16.66555555555557,
+        "simulation": "gpu",
+        "audio": {
+          "unlocked": true,
+          "muted": false,
+          "activeVoices": 2,
+          "playedImpacts": 54,
+          "status": "ready"
+        },
+        "wakeStrength": 0.581556869715877,
+        "activeSpray": 9216,
+        "impacts": 8,
+        "strikeCount": 56,
+        "floorLayers": 3,
+        "floor": [
+          18000,
+          8500,
+          4000
+        ],
+        "cameraYaw": 0.2561175508552295,
+        "paused": false,
+        "contextLost": false,
+        "drawingBuffer": {
+          "width": 1440,
+          "height": 1000
+        }
+      },
+      "samples": [
+        {
+          "elapsedMs": 1006.5999999642372,
+          "time": 7.466400000000037,
+          "frames": 448,
+          "quality": 1,
+          "particles": 140000,
+          "averageFrameMs": 16.665555555555553,
+          "simulation": "gpu",
+          "audio": {
+            "unlocked": true,
+            "muted": false,
+            "activeVoices": 0,
+            "playedImpacts": 30,
+            "status": "ready"
+          },
+          "wakeStrength": 0.6584204302330636,
+          "activeSpray": 6144,
+          "impacts": 8,
+          "strikeCount": 32,
+          "floorLayers": 3,
+          "floor": [
+            18000,
+            8500,
+            4000
+          ],
+          "cameraYaw": 0.5658405201020628,
+          "paused": false,
+          "contextLost": false,
+          "drawingBuffer": {
+            "width": 1440,
+            "height": 1000
+          }
+        },
+        {
+          "elapsedMs": 2003.300000011921,
+          "time": 8.466300000000038,
+          "frames": 508,
+          "quality": 1,
+          "particles": 140000,
+          "averageFrameMs": 16.666666666666668,
+          "simulation": "gpu",
+          "audio": {
+            "unlocked": true,
+            "muted": false,
+            "activeVoices": 0,
+            "playedImpacts": 34,
+            "status": "ready"
+          },
+          "wakeStrength": 0.4763986024414607,
+          "activeSpray": 6144,
+          "impacts": 6,
+          "strikeCount": 36,
+          "floorLayers": 3,
+          "floor": [
+            18000,
+            8500,
+            4000
+          ],
+          "cameraYaw": 0.5132627565594989,
+          "paused": false,
+          "contextLost": false,
+          "drawingBuffer": {
+            "width": 1440,
+            "height": 1000
+          }
+        },
+        {
+          "elapsedMs": 3008.399999976158,
+          "time": 9.466300000000025,
+          "frames": 568,
+          "quality": 1,
+          "particles": 140000,
+          "averageFrameMs": 16.666666666666668,
+          "simulation": "gpu",
+          "audio": {
+            "unlocked": true,
+            "muted": false,
+            "activeVoices": 4,
+            "playedImpacts": 40,
+            "status": "ready"
+          },
+          "wakeStrength": 0.5720173173206264,
+          "activeSpray": 9216,
+          "impacts": 7,
+          "strikeCount": 42,
+          "floorLayers": 3,
+          "floor": [
+            18000,
+            8500,
+            4000
+          ],
+          "cameraYaw": 0.44959327476535055,
+          "paused": false,
+          "contextLost": false,
+          "drawingBuffer": {
+            "width": 1440,
+            "height": 1000
+          }
+        },
+        {
+          "elapsedMs": 4003.199999988079,
+          "time": 10.466300000000007,
+          "frames": 628,
+          "quality": 1,
+          "particles": 140000,
+          "averageFrameMs": 16.666666666666668,
+          "simulation": "gpu",
+          "audio": {
+            "unlocked": true,
+            "muted": false,
+            "activeVoices": 3,
+            "playedImpacts": 45,
+            "status": "ready"
+          },
+          "wakeStrength": 0.5656275138064696,
+          "activeSpray": 10752,
+          "impacts": 8,
+          "strikeCount": 47,
+          "floorLayers": 3,
+          "floor": [
+            18000,
+            8500,
+            4000
+          ],
+          "cameraYaw": 0.38106927295326476,
+          "paused": false,
+          "contextLost": false,
+          "drawingBuffer": {
+            "width": 1440,
+            "height": 1000
+          }
+        },
+        {
+          "elapsedMs": 5005.899999976158,
+          "time": 11.466199999999992,
+          "frames": 688,
+          "quality": 1,
+          "particles": 140000,
+          "averageFrameMs": 16.665555555555553,
+          "simulation": "gpu",
+          "audio": {
+            "unlocked": true,
+            "muted": false,
+            "activeVoices": 1,
+            "playedImpacts": 49,
+            "status": "ready"
+          },
+          "wakeStrength": 0.5048372626447672,
+          "activeSpray": 9216,
+          "impacts": 7,
+          "strikeCount": 51,
+          "floorLayers": 3,
+          "floor": [
+            18000,
+            8500,
+            4000
+          ],
+          "cameraYaw": 0.31440495839488014,
+          "paused": false,
+          "contextLost": false,
+          "drawingBuffer": {
+            "width": 1440,
+            "height": 1000
+          }
+        },
+        {
+          "elapsedMs": 6004.300000011921,
+          "time": 12.466099999999974,
+          "frames": 748,
+          "quality": 1,
+          "particles": 140000,
+          "averageFrameMs": 16.66555555555557,
+          "simulation": "gpu",
+          "audio": {
+            "unlocked": true,
+            "muted": false,
+            "activeVoices": 2,
+            "playedImpacts": 54,
+            "status": "ready"
+          },
+          "wakeStrength": 0.581556869715877,
+          "activeSpray": 9216,
+          "impacts": 8,
+          "strikeCount": 56,
+          "floorLayers": 3,
+          "floor": [
+            18000,
+            8500,
+            4000
+          ],
+          "cameraYaw": 0.2561175508552295,
+          "paused": false,
+          "contextLost": false,
+          "drawingBuffer": {
+            "width": 1440,
+            "height": 1000
+          }
+        }
+      ],
+      "errors": []
+    },
+    {
+      "profile": "portrait",
+      "width": 390,
+      "height": 844,
+      "dpr": 2,
+      "interaction": false,
+      "gpu": "ANGLE (Apple, ANGLE Metal Renderer: Apple M3 Pro, Unspecified Version)",
+      "webglVersion": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+      "elapsedMs": 6004.199999988079,
+      "framesRendered": 360,
+      "fps": 59.95802937955344,
+      "start": {
+        "time": 6.499738000000022,
+        "frames": 390,
+        "quality": 1,
+        "particles": 68000,
+        "averageFrameMs": 16.665555555555553,
+        "simulation": "gpu",
+        "audio": {
+          "unlocked": true,
+          "muted": false,
+          "activeVoices": 0,
+          "playedImpacts": 26,
+          "status": "ready"
+        },
+        "wakeStrength": 0,
+        "activeSpray": 4096,
+        "impacts": 8,
+        "strikeCount": 28,
+        "floorLayers": 3,
+        "floor": [
+          9000,
+          4500,
+          2200
+        ],
+        "cameraYaw": 0.601282954041483,
+        "paused": false,
+        "contextLost": false,
+        "drawingBuffer": {
+          "width": 682,
+          "height": 1477
+        }
+      },
+      "end": {
+        "time": 12.499437999999962,
+        "frames": 750,
+        "quality": 1,
+        "particles": 68000,
+        "averageFrameMs": 16.666666666666668,
+        "simulation": "gpu",
+        "audio": {
+          "unlocked": true,
+          "muted": false,
+          "activeVoices": 2,
+          "playedImpacts": 54,
+          "status": "ready"
+        },
+        "wakeStrength": 0,
+        "activeSpray": 5120,
+        "impacts": 8,
+        "strikeCount": 56,
+        "floorLayers": 3,
+        "floor": [
+          9000,
+          4500,
+          2200
+        ],
+        "cameraYaw": 0.254388290546877,
+        "paused": false,
+        "contextLost": false,
+        "drawingBuffer": {
+          "width": 682,
+          "height": 1477
+        }
+      },
+      "samples": [
+        {
+          "elapsedMs": 1003.3000000119209,
+          "time": 7.499638000000034,
+          "frames": 450,
+          "quality": 1,
+          "particles": 68000,
+          "averageFrameMs": 16.665555555555553,
+          "simulation": "gpu",
+          "audio": {
+            "unlocked": true,
+            "muted": false,
+            "activeVoices": 0,
+            "playedImpacts": 30,
+            "status": "ready"
+          },
+          "wakeStrength": 0,
+          "activeSpray": 4096,
+          "impacts": 7,
+          "strikeCount": 32,
+          "floorLayers": 3,
+          "floor": [
+            9000,
+            4500,
+            2200
+          ],
+          "cameraYaw": 0.5643289763260885,
+          "paused": false,
+          "contextLost": false,
+          "drawingBuffer": {
+            "width": 682,
+            "height": 1477
+          }
+        },
+        {
+          "elapsedMs": 2004.3999999761581,
+          "time": 8.499538000000033,
+          "frames": 510,
+          "quality": 1,
+          "particles": 68000,
+          "averageFrameMs": 16.666666666666668,
+          "simulation": "gpu",
+          "audio": {
+            "unlocked": true,
+            "muted": false,
+            "activeVoices": 2,
+            "playedImpacts": 35,
+            "status": "ready"
+          },
+          "wakeStrength": 0,
+          "activeSpray": 5120,
+          "impacts": 7,
+          "strikeCount": 37,
+          "floorLayers": 3,
+          "floor": [
+            9000,
+            4500,
+            2200
+          ],
+          "cameraYaw": 0.5112925415731615,
+          "paused": false,
+          "contextLost": false,
+          "drawingBuffer": {
+            "width": 682,
+            "height": 1477
+          }
+        },
+        {
+          "elapsedMs": 3003.899999976158,
+          "time": 9.499538000000015,
+          "frames": 570,
+          "quality": 1,
+          "particles": 68000,
+          "averageFrameMs": 16.665555555555553,
+          "simulation": "gpu",
+          "audio": {
+            "unlocked": true,
+            "muted": false,
+            "activeVoices": 4,
+            "playedImpacts": 40,
+            "status": "ready"
+          },
+          "wakeStrength": 0,
+          "activeSpray": 6144,
+          "impacts": 7,
+          "strikeCount": 42,
+          "floorLayers": 3,
+          "floor": [
+            9000,
+            4500,
+            2200
+          ],
+          "cameraYaw": 0.4473572694614932,
+          "paused": false,
+          "contextLost": false,
+          "drawingBuffer": {
+            "width": 682,
+            "height": 1477
+          }
+        },
+        {
+          "elapsedMs": 4002.800000011921,
+          "time": 10.499438000000001,
+          "frames": 630,
+          "quality": 1,
+          "particles": 68000,
+          "averageFrameMs": 16.665555555555553,
+          "simulation": "gpu",
+          "audio": {
+            "unlocked": true,
+            "muted": false,
+            "activeVoices": 2,
+            "playedImpacts": 45,
+            "status": "ready"
+          },
+          "wakeStrength": 0,
+          "activeSpray": 7168,
+          "impacts": 8,
+          "strikeCount": 47,
+          "floorLayers": 3,
+          "floor": [
+            9000,
+            4500,
+            2200
+          ],
+          "cameraYaw": 0.37879347172184213,
+          "paused": false,
+          "contextLost": false,
+          "drawingBuffer": {
+            "width": 682,
+            "height": 1477
+          }
+        },
+        {
+          "elapsedMs": 5004,
+          "time": 11.499437999999982,
+          "frames": 690,
+          "quality": 1,
+          "particles": 68000,
+          "averageFrameMs": 16.665555555555553,
+          "simulation": "gpu",
+          "audio": {
+            "unlocked": true,
+            "muted": false,
+            "activeVoices": 0,
+            "playedImpacts": 49,
+            "status": "ready"
+          },
+          "wakeStrength": 0,
+          "activeSpray": 5120,
+          "impacts": 7,
+          "strikeCount": 51,
+          "floorLayers": 3,
+          "floor": [
+            9000,
+            4500,
+            2200
+          ],
+          "cameraYaw": 0.31229839278617205,
+          "paused": false,
+          "contextLost": false,
+          "drawingBuffer": {
+            "width": 682,
+            "height": 1477
+          }
+        },
+        {
+          "elapsedMs": 6004.100000023842,
+          "time": 12.499437999999962,
+          "frames": 750,
+          "quality": 1,
+          "particles": 68000,
+          "averageFrameMs": 16.666666666666668,
+          "simulation": "gpu",
+          "audio": {
+            "unlocked": true,
+            "muted": false,
+            "activeVoices": 2,
+            "playedImpacts": 54,
+            "status": "ready"
+          },
+          "wakeStrength": 0,
+          "activeSpray": 5120,
+          "impacts": 8,
+          "strikeCount": 56,
+          "floorLayers": 3,
+          "floor": [
+            9000,
+            4500,
+            2200
+          ],
+          "cameraYaw": 0.254388290546877,
+          "paused": false,
+          "contextLost": false,
+          "drawingBuffer": {
+            "width": 682,
+            "height": 1477
+          }
+        }
+      ],
+      "errors": []
+    },
+    {
+      "profile": "portrait",
+      "width": 390,
+      "height": 844,
+      "dpr": 2,
+      "interaction": true,
+      "gpu": "ANGLE (Apple, ANGLE Metal Renderer: Apple M3 Pro, Unspecified Version)",
+      "webglVersion": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36",
+      "elapsedMs": 6003.900000035763,
+      "framesRendered": 360,
+      "fps": 59.96102533317604,
+      "start": {
+        "time": 6.5162380000000235,
+        "frames": 391,
+        "quality": 1,
+        "particles": 68000,
+        "averageFrameMs": 16.666666666666668,
+        "simulation": "gpu",
+        "audio": {
+          "unlocked": true,
+          "muted": false,
+          "activeVoices": 0,
+          "playedImpacts": 26,
+          "status": "ready"
+        },
+        "wakeStrength": 0.42159511038322395,
+        "activeSpray": 4096,
+        "impacts": 8,
+        "strikeCount": 28,
+        "floorLayers": 3,
+        "floor": [
+          9000,
+          4500,
+          2200
+        ],
+        "cameraYaw": 0.6008257381069729,
+        "paused": false,
+        "contextLost": false,
+        "drawingBuffer": {
+          "width": 682,
+          "height": 1477
+        }
+      },
+      "end": {
+        "time": 12.516037999999968,
+        "frames": 751,
+        "quality": 1,
+        "particles": 68000,
+        "averageFrameMs": 16.666666666666668,
+        "simulation": "gpu",
+        "audio": {
+          "unlocked": true,
+          "muted": false,
+          "activeVoices": 2,
+          "playedImpacts": 54,
+          "status": "ready"
+        },
+        "wakeStrength": 0.5833501718478096,
+        "activeSpray": 5120,
+        "impacts": 8,
+        "strikeCount": 56,
+        "floorLayers": 3,
+        "floor": [
+          9000,
+          4500,
+          2200
+        ],
+        "cameraYaw": 0.2535333520542548,
+        "paused": false,
+        "contextLost": false,
+        "drawingBuffer": {
+          "width": 682,
+          "height": 1477
+        }
+      },
+      "samples": [
+        {
+          "elapsedMs": 1007.1000000238419,
+          "time": 7.516338000000033,
+          "frames": 451,
+          "quality": 1,
+          "particles": 68000,
+          "averageFrameMs": 16.666666666666668,
+          "simulation": "gpu",
+          "audio": {
+            "unlocked": true,
+            "muted": false,
+            "activeVoices": 0,
+            "playedImpacts": 30,
+            "status": "ready"
+          },
+          "wakeStrength": 0.6758957747085486,
+          "activeSpray": 4096,
+          "impacts": 6,
+          "strikeCount": 32,
+          "floorLayers": 3,
+          "floor": [
+            9000,
+            4500,
+            2200
+          ],
+          "cameraYaw": 0.5635626201766634,
+          "paused": false,
+          "contextLost": false,
+          "drawingBuffer": {
+            "width": 682,
+            "height": 1477
+          }
+        },
+        {
+          "elapsedMs": 2003.7000000476837,
+          "time": 8.516238000000033,
+          "frames": 511,
+          "quality": 1,
+          "particles": 68000,
+          "averageFrameMs": 16.666666666666668,
+          "simulation": "gpu",
+          "audio": {
+            "unlocked": true,
+            "muted": false,
+            "activeVoices": 4,
+            "playedImpacts": 36,
+            "status": "ready"
+          },
+          "wakeStrength": 0.4810472199983354,
+          "activeSpray": 6144,
+          "impacts": 7,
+          "strikeCount": 38,
+          "floorLayers": 3,
+          "floor": [
+            9000,
+            4500,
+            2200
+          ],
+          "cameraYaw": 0.5102979332088677,
+          "paused": false,
+          "contextLost": false,
+          "drawingBuffer": {
+            "width": 682,
+            "height": 1477
+          }
+        },
+        {
+          "elapsedMs": 3007.7000000476837,
+          "time": 9.516238000000017,
+          "frames": 571,
+          "quality": 1,
+          "particles": 68000,
+          "averageFrameMs": 16.66555555555556,
+          "simulation": "gpu",
+          "audio": {
+            "unlocked": true,
+            "muted": false,
+            "activeVoices": 5,
+            "playedImpacts": 41,
+            "status": "ready"
+          },
+          "wakeStrength": 0.5922648782219341,
+          "activeSpray": 7168,
+          "impacts": 8,
+          "strikeCount": 43,
+          "floorLayers": 3,
+          "floor": [
+            9000,
+            4500,
+            2200
+          ],
+          "cameraYaw": 0.44623166201005793,
+          "paused": false,
+          "contextLost": false,
+          "drawingBuffer": {
+            "width": 682,
+            "height": 1477
+          }
+        },
+        {
+          "elapsedMs": 4001.2000000476837,
+          "time": 10.516138000000002,
+          "frames": 631,
+          "quality": 1,
+          "particles": 68000,
+          "averageFrameMs": 16.665555555555553,
+          "simulation": "gpu",
+          "audio": {
+            "unlocked": true,
+            "muted": false,
+            "activeVoices": 2,
+            "playedImpacts": 45,
+            "status": "ready"
+          },
+          "wakeStrength": 0.5708448589547896,
+          "activeSpray": 7168,
+          "impacts": 8,
+          "strikeCount": 47,
+          "floorLayers": 3,
+          "floor": [
+            9000,
+            4500,
+            2200
+          ],
+          "cameraYaw": 0.3776470512728046,
+          "paused": false,
+          "contextLost": false,
+          "drawingBuffer": {
+            "width": 682,
+            "height": 1477
+          }
+        },
+        {
+          "elapsedMs": 5002.300000011921,
+          "time": 11.516137999999984,
+          "frames": 691,
+          "quality": 1,
+          "particles": 68000,
+          "averageFrameMs": 16.665555555555553,
+          "simulation": "gpu",
+          "audio": {
+            "unlocked": true,
+            "muted": false,
+            "activeVoices": 0,
+            "playedImpacts": 49,
+            "status": "ready"
+          },
+          "wakeStrength": 0.46225432525114063,
+          "activeSpray": 5120,
+          "impacts": 7,
+          "strikeCount": 51,
+          "floorLayers": 3,
+          "floor": [
+            9000,
+            4500,
+            2200
+          ],
+          "cameraYaw": 0.3112434757266716,
+          "paused": false,
+          "contextLost": false,
+          "drawingBuffer": {
+            "width": 682,
+            "height": 1477
+          }
+        },
+        {
+          "elapsedMs": 6003.800000011921,
+          "time": 12.516037999999968,
+          "frames": 751,
+          "quality": 1,
+          "particles": 68000,
+          "averageFrameMs": 16.666666666666668,
+          "simulation": "gpu",
+          "audio": {
+            "unlocked": true,
+            "muted": false,
+            "activeVoices": 2,
+            "playedImpacts": 54,
+            "status": "ready"
+          },
+          "wakeStrength": 0.5833501718478096,
+          "activeSpray": 5120,
+          "impacts": 8,
+          "strikeCount": 56,
+          "floorLayers": 3,
+          "floor": [
+            9000,
+            4500,
+            2200
+          ],
+          "cameraYaw": 0.2535333520542548,
+          "paused": false,
+          "contextLost": false,
+          "drawingBuffer": {
+            "width": 682,
+            "height": 1477
+          }
+        }
+      ],
+      "errors": []
+    }
+  ],
+  "hostHardware": {
+    "chip": "Apple M3 Pro",
+    "memory": "36 GB",
+    "cpu": "12 cores",
+    "model": "Mac15,7"
+  },
+  "sourceRevisionNote": "SHA256 sourceHashes identify the measured runtime in the final checkpoint12 commit."
+}

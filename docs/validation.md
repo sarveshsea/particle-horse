@@ -87,3 +87,31 @@ Subjective listening was unavailable in this agent session. The capture verifies
 
 ![Facial detail](head-11.png)
 ![Connected tail strands](tail-11.png)
+
+
+## Checkpoint 12 — cleaner meadow, connected tail and contact sound
+
+The floor now reads as short white particle grass, with larger tilted five-petal flowers and low bushes formed from leaf clusters. A quarter of flowers occupy the hoof corridor; a sixth of bushes line its edges. Seeded coverage mixes clumps and open grass. Nearby plants flatten under the shared strike field, then recover as the terrain moves backward. Plant roots stay fixed to their moving terrain, and the meadow consumes the same wind field as the other particles. Quiet fine ground grains replace the previously dominant bright sand bed.
+
+Sole height now follows the lowest sampled hoof vertex rather than the center of the hoof volume. A descending threshold crossing triggers one strike per hoof per 0.9-second stride. Audio and visual kicks use this shared event. Stronger short ballistic launches clear the grass canopy, then land in the bounded grain pool.
+
+Inspection showed vertex 8430 was a side hindquarter cap rather than the central tail dock. The corrected guide attaches to body vertex 10, keeps its proximal curve close to the croup, and spreads roots across a small bundle. The hair shares a nearby body particle’s GPU displacement, sampled within the guaranteed active prefix, so scattering keeps the attachment together. Its analytic fallback remains bounded.
+
+Recorded hoof attacks now last 130 ms, grain releases 170 ms, with rates near their original recording speed. The low-mid hoof resonance is reduced; the slow-pitched third scrape and 0.28-rate bed are removed. The much quieter high-passed original-speed air bed leaves more space between impacts. [Exact source edits and provenance](audio-sources.md) retain the original CC0 attribution. The ten-second recording contains 44 audible impacts for 44 visual strikes; peak -9.97 dBFS, RMS -32.92 dBFS, with no clipping or nonfinite samples. [Audio measurements](audio-measurements-12.json) preserve these observations. Subjective listening remains unverified in this agent session.
+
+95 unit/integration tests and 21 production browser checks pass. Coverage is 98.88% statements, 95.13% branches, 96.89% functions and 100% lines. Tests include planted roots, deterministic plants, readable blossom geometry, hoof-route distribution, bending bounds/recovery, central dock continuity, sole contact timing, higher bounded launches, short recorded PCM attacks, touch/audio/resize/reduced-motion/context lifecycles and reassembly. Dependency audit reports zero vulnerabilities. Read-only review found no material blockers.
+
+### Current Metal performance
+
+Apple M3 Pro, 12-core CPU, 36 GB RAM, headless Chromium 153 using the physical GPU through ANGLE Metal. Each profile warmed for 6 seconds, then measured 6 seconds with sound active. Portrait is browser viewport emulation, not a physical phone.
+
+| Profile | Viewport / ratio | Mean fps | Horse particles | Quality |
+| --- | --- | --- | --- | --- |
+| desktop idle | 1440×1000 / 1 | 59.95 | 140,000 | 1.000 |
+| desktop continuous hover | 1440×1000 / 1 | 59.96 | 140,000 | 1.000 |
+| portrait idle | 390×844 / 2 | 59.96 | 68,000 | 1.000 |
+| portrait continuous hover | 390×844 / 2 | 59.96 | 68,000 | 1.000 |
+
+[Raw measurements and source hashes](performance-12.json). The results meet the local 60 fps desktop and 30 fps portrait targets; no claim is made about all devices. [Current audiovisual preview](preview.mp4) shows the moving meadow, kicks, tail, scattering and camera drag.
+
+![Current tail attachment](tail-12.png)

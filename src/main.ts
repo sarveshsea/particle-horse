@@ -4,9 +4,11 @@ import { qualityForFrame, qualityWindowReady } from "./dynamics";
 import { createCameraMotion } from "./camera-motion";
 import { createInteraction } from "./interaction";
 import { createHorseAudio } from "./audio";
+import { createMeadow } from "./meadow-render";
 async function start() {
   const art = await createArtwork(),
     environment = createEnvironment(art.scene);
+  const meadow = createMeadow(art.scene, innerWidth < 600);
   const sound = createHorseAudio(art.renderer.domElement);
   const interaction = createInteraction(art.camera, art.renderer.domElement);
   const cameraMotion = createCameraMotion(art.camera, art.renderer.domElement, event => interaction.tap(event));
@@ -31,6 +33,7 @@ async function start() {
     groundDistance: 0,
     impacts: 0,
     audio: sound.diagnostics,
+    meadow: meadow.diagnostics,
     captureAudio: () => sound.captureStream(),
     floorLayers: environment.floorLayers,
     strikeCount: 0,
@@ -54,6 +57,7 @@ async function start() {
     environment.setPointer(pointer.point, pointer.strength);
     const contacts = environment.update(time, art.mesh);
     sound.update(time, contacts, art.camera);
+    meadow.update(time, contacts, art.renderer.getPixelRatio(), reduced.matches);
     diagnostics.impacts = environment.impactCount;
     diagnostics.strikeCount = environment.strikeCount;
     diagnostics.activeSpray = environment.activeSpray;
@@ -92,6 +96,7 @@ async function start() {
       );
       art.geometry.setDrawRange(0, diagnostics.particles);
       environment.setQuality(quality);
+      meadow.setQuality(quality);
       art.wake.setQuality(quality);
       art.hair.setQuality(Math.max(.6, quality));
       art.resize();

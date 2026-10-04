@@ -13,7 +13,7 @@ test('hair generation is seeded, tapered, length-varied and finite',()=>{
 test('strand roots remain anchored and the gait loop is continuous',()=>{
  const hair=generateHair(10,32);
  const root=hairPoint(guide,0,0,hair.strand.slice(0,4));
- expect(root[1]).toBeCloseTo(1,5);
+ expect(root[1]).toBeGreaterThan(1);expect(root[1]).toBeLessThan(1.03);
  expect(hairPoint(guide,.62,0,hair.strand.slice(0,4))).toEqual(root);
  const tip=hairPoint(guide,0,1,hair.strand.slice(0,4));expect(tip.every(Number.isFinite)).toBe(true);
  expect(tip[1]).toBeLessThan(root[1]);

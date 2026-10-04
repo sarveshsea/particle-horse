@@ -1,0 +1,24 @@
+import { test, expect } from '@playwright/test';
+test('white meadow persists through motion, portrait resize and reduced motion', async ({ page }) => {
+ const errors:string[]=[];
+ page.on('pageerror', error=>errors.push(error.message));
+ page.on('console', message=>{if(message.type()==='error')errors.push(message.text());});
+ await page.goto('/');
+ await page.waitForFunction(()=>(window as any).__ARTWORK?.meadow);
+ const field=await page.evaluate(()=>(window as any).__ARTWORK.meadow);
+ expect(field.grass).toBeGreaterThan(4000);
+ expect(field.flowers).toBeGreaterThan(80);
+ expect(field.bushes).toBeGreaterThan(30);
+ const strikes=await page.evaluate(()=>(window as any).__ARTWORK.strikeCount);
+ await page.waitForFunction((old)=>(window as any).__ARTWORK.strikeCount>=old+4,strikes);
+ await page.setViewportSize({width:390,height:844});
+ await page.emulateMedia({reducedMotion:'reduce'});
+ await page.waitForTimeout(150);
+ const time=await page.evaluate(()=>(window as any).__ARTWORK.time);
+ await page.waitForTimeout(250);
+ expect(await page.evaluate(()=>(window as any).__ARTWORK.time)).toBe(time);
+ expect(await page.locator('body').innerText()).toBe('');
+ await page.emulateMedia({reducedMotion:'no-preference'});
+ await page.waitForFunction((previous)=>(window as any).__ARTWORK.time>previous,time);
+ expect(errors).toEqual([]);
+});

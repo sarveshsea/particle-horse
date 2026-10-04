@@ -40,11 +40,11 @@ test('facial landmarks and feature weights are local and bilateral',()=>{
  expect(()=>refineAnatomy({...asset(),vertexCount:10})).toThrow();
 });
 
-test('tail guide roots attach exactly to the preserved moving body cap', () => {
+test('tail guide roots attach exactly to the moving central dorsal croup', () => {
  const source=asset(),result=refineAnatomy(source);
  for(let frame=0;frame<source.frameCount;frame++) {
   const root=(frame*result.guideCount)*3;
-  const attachment=(frame*source.vertexCount+8430)*3;
+  const attachment=(frame*source.vertexCount+10)*3;
   expect(result.tailGuide.slice(root,root+3)).toEqual(source.positions.slice(attachment,attachment+3));
  }
 });

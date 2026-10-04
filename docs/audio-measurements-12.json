@@ -1,0 +1,60 @@
+{
+  "date": "2026-10-04T16:26:44.797Z",
+  "url": "http://127.0.0.1:4175",
+  "output": "/tmp/particle-horse-av.webm",
+  "choreography": "0\u20133s gallop;3\u20135s mouse wake;5\u20136s return;6\u20137s drag;7\u201310s idle",
+  "mimeType": "video/webm;codecs=vp9,opus",
+  "bytes": 5850826,
+  "elapsedMs": 10100.5,
+  "start": {
+    "audio": {
+      "unlocked": true,
+      "muted": false,
+      "activeVoices": 0,
+      "playedImpacts": 6,
+      "status": "ready"
+    },
+    "strikeCount": 8,
+    "impacts": 8,
+    "frames": 118,
+    "time": 2.016499999999998,
+    "quality": 0.88
+  },
+  "end": {
+    "audio": {
+      "unlocked": true,
+      "muted": false,
+      "activeVoices": 0,
+      "playedImpacts": 50,
+      "status": "ready"
+    },
+    "strikeCount": 52,
+    "impacts": 6,
+    "frames": 718,
+    "time": 12.016099999999973,
+    "quality": 1
+  },
+  "audioTracks": [
+    {
+      "kind": "audio",
+      "enabled": true,
+      "readyState": "live"
+    }
+  ],
+  "errors": [],
+  "decodedMix": {
+    "peakDbFS": -9.970154,
+    "rmsDbFS": -32.915749,
+    "dcOffset": 2.5e-05,
+    "nanSamples": 0.0,
+    "infiniteSamples": 0.0,
+    "peakAbsolute": 0.317316
+  },
+  "encodedPreview": {
+    "path": "docs/preview.mp4",
+    "durationSeconds": 10,
+    "video": "H264 960x666 30fps",
+    "audio": "AAC stereo 48000Hz"
+  },
+  "listeningReview": "Objective contact synchronization, PCM attacks and unclipped recorded output verified. Subjective listening is unavailable in this agent session."
+}

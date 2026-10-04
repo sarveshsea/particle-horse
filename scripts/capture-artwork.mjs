@@ -94,8 +94,8 @@ try {
     await page.waitForTimeout(225);
     await page.screenshot({ path: `${docs}gallop-${i}.png` });
   }
-  await page.screenshot({ path: `${docs}head-11.png`, clip: { x: 780, y: 160, width: 390, height: 380 } });
-  await page.screenshot({ path: `${docs}tail-11.png`, clip: { x: 220, y: 280, width: 430, height: 350 } });
+  await page.screenshot({ path: `${docs}head-12.png`, clip: { x: 780, y: 160, width: 390, height: 380 } });
+  await page.screenshot({ path: `${docs}tail-12.png`, clip: { x: 220, y: 280, width: 430, height: 350 } });
   await desktop.close();
   const portrait = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, reducedMotion: 'no-preference' });
   const mobile = await portrait.newPage();
@@ -106,7 +106,7 @@ try {
   await mobile.screenshot({ path: `${docs}portrait.png` });
   await portrait.close();
   report.errors = [...new Set(errors)];
-  await writeFile(`${docs}audio-measurements.json`, `${JSON.stringify(report, null, 2)}\n`);
+  await writeFile(`${docs}audio-measurements-12.json`, `${JSON.stringify(report, null, 2)}\n`);
   console.log(`Saved ${videoPath}, artwork/gait/detail/portrait screenshots, and audio measurements.`);
   console.log(`Recorded audio impacts: ${report.end.audio.playedImpacts - report.start.audio.playedImpacts}; strikes: ${report.end.strikeCount - report.start.strikeCount}.`);
   if (report.errors.length || report.end.audio.playedImpacts <= report.start.audio.playedImpacts) process.exitCode = 1;

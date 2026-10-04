@@ -10,12 +10,23 @@ export function createContactTimeline(mesh:Equine):ContactTimeline{
  const strikes=extractHooves(mesh).map((track,hoof)=>{
   const samples=Array.from({length:mesh.frameCount},(_,frame)=>hoofAt(mesh,track,frame*mesh.cycleSeconds/mesh.frameCount));
   const minimum=samples.reduce((best,sample,index)=>sample.y<samples[best].y?index:best,0);
-  const phase=minimum*mesh.cycleSeconds/mesh.frameCount,point=samples[minimum];
-  let contactFrames=1;
-  while(contactFrames<mesh.frameCount/2&&samples[(minimum+contactFrames)%mesh.frameCount].y<track.floor+.065)contactFrames++;
-  const previous=hoofAt(mesh,track,phase-mesh.cycleSeconds/mesh.frameCount);
-  const landingSpeed=Math.max(0,(previous.y-point.y)*mesh.frameCount/mesh.cycleSeconds);
-  return {...point,hoof,phase,strength:Math.min(1,.72+landingSpeed*.18),contactDuration:contactFrames*mesh.cycleSeconds/mesh.frameCount};
+  const step=mesh.cycleSeconds/mesh.frameCount, threshold=track.floor+.025;
+  let first=minimum;
+  const sample=(index:number)=>samples[(index%mesh.frameCount+mesh.frameCount)%mesh.frameCount];
+  while(minimum-first<mesh.frameCount/2&&sample(first-1).y<=threshold)first--;
+  const before=sample(first-1),after=sample(first);
+  let low=(first-1)*step,high=first*step;
+  for(let iteration=0;iteration<18;iteration++) {
+   const middle=(low+high)/2;
+   if(hoofAt(mesh,track,middle).y>threshold)low=middle;else high=middle;
+  }
+  const rawPhase=(low+high)/2;
+  const phase=(rawPhase%mesh.cycleSeconds+mesh.cycleSeconds)%mesh.cycleSeconds,point=hoofAt(mesh,track,phase);
+  let release=minimum+1;
+  while(release-minimum<mesh.frameCount/2&&sample(release).y<track.floor+.065)release++;
+  const landingSpeed=Math.max(0,(before.y-after.y)/step);
+  const contactDuration=Math.min(mesh.cycleSeconds*.49,Math.max(step,release*step-rawPhase));
+  return {...point,hoof,phase,strength:Math.min(1,.72+landingSpeed*.18),contactDuration};
  }).sort((a,b)=>a.phase-b.phase);
  return {cycleSeconds:mesh.cycleSeconds,strikes};
 }

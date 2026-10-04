@@ -40,11 +40,11 @@ void main(){vec3 p=position;p.x=mod(p.x-time*speed+span,span*2.)-span;vec3 wind=
  }
  vec2 d=p.xz-pointer.xz;float wake=exp(-dot(d,d)*5.)*pointer.w;p.xz+=d*min(wake,.6);p.y+=wake*.03;
  vec4 view=modelViewMatrix*vec4(p,1.);gl_Position=projectionMatrix*view;
- float scale=mix(25.,13.,band*.5)+size*8.;
- gl_PointSize=clamp(scale*pixelRatio/max(-view.z,.1),.7,(4.4-band*.9)*pixelRatio);
+ float scale=mix(14.,9.,band*.5)+size*5.;
+ gl_PointSize=clamp(scale*pixelRatio/max(-view.z,.1),.7,(2.5-band*.5)*pixelRatio);
  float edges=(1.-smoothstep(span*.7,span,abs(p.x)))*(1.-smoothstep(8.,11.,abs(p.z)));
  float clumps=.76+.24*seed;
- alpha=mix(.93,.45,band*.5)*edges*clumps*exp(-length(p.xz)*.035);
+ alpha=mix(.60,.28,band*.5)*edges*clumps*exp(-length(p.xz)*.035);
  tone=min(1.,.78+seed*.2+pressure*.16+contour*.018);
 }`;
 
@@ -78,7 +78,8 @@ function makeSpray(scene:THREE.Scene,uniforms:Record<string,THREE.IUniform>,perS
  p.y=max(p.y,-.014);`:'vec3 p=sprayPoint(hit,age,seed,time,speed);'}
  vec4 view=modelViewMatrix*vec4(p,1.);
  gl_Position=live>0.?projectionMatrix*view:vec4(2.,2.,2.,1.);
- gl_PointSize=clamp((${soft?'28.+seed*32.':'17.+seed*13.'})*pixelRatio/max(-view.z,.1),${soft?'1.2,7.':'1.,4.'}*pixelRatio);
+ gl_PointSize=clamp((${soft?'28.+seed*32.':'26.+seed*18.'})*pixelRatio/max(-view.z,.1),${soft?'1.2,7.':'1.2,4.'}*pixelRatio);
+ ${soft?'':'gl_PointSize*=.55+.45*smoothstep(.015,.085,age);'}
  alpha=live*(1.-smoothstep(life*${soft?'.2':'.7'},life,age))*(${soft?'.035+seed*.05':'.78+seed*.22'});tone=${soft?'1.':'.86+seed*.14'};
  }`;
  const material=new THREE.ShaderMaterial({uniforms,vertexShader,fragmentShader:soft?dustFragment:grainFragment,transparent:true,depthWrite:!soft,depthTest:true,blending:soft?THREE.AdditiveBlending:THREE.NormalBlending});
@@ -89,7 +90,7 @@ function makeSpray(scene:THREE.Scene,uniforms:Record<string,THREE.IUniform>,perS
 export function createEnvironment(scene:THREE.Scene){
  const compact=innerWidth<600,wind=createWind(scene,GROUND_SPEED),grainsPerStrike=compact?1024:1536;
  const uniforms={time:{value:0},pixelRatio:{value:1},speed:{value:GROUND_SPEED},impacts:{value:Array.from({length:IMPACT_LIMIT},()=>new THREE.Vector4(0,0,-100,0))},pressureHits:{value:Array.from({length:PRESSURE_LIMIT},()=>new THREE.Vector4(0,0,-100,0))},pressureCount:{value:0},hoofPressure:{value:Array.from({length:4},()=>new THREE.Vector4())},pointer:{value:new THREE.Vector4()}};
- const layers=(['near','middle','far'] as const).map((layer,i)=>makeGround(scene,layer,(compact?[26000,12000,6000]:[42000,26000,14000])[i],uniforms,i));
+ const layers=(['near','middle','far'] as const).map((layer,i)=>makeGround(scene,layer,(compact?[9000,4500,2200]:[18000,8500,4000])[i],uniforms,i));
  const spray=makeSpray(scene,uniforms,grainsPerStrike),dust=makeSpray(scene,uniforms,compact?128:256,true);
  let tracks:readonly HoofTrack[]|undefined,timeline:ContactTimeline|undefined,events:readonly Impact[]=[],lastTime=-1e-7,slot=0,strikeCount=0;
  let activeContacts:readonly ContactEvent[]=[];

@@ -20,12 +20,14 @@ notice = {
     'sourceVertexCount': vertex_count, 'sourceFrameCount': metadata['frameCount'],
     'landmarkVertexIds': landmarks,
     'tailMaskInclusive': [7562, 8429], 'tailVertexCount': 868,
-    'preservedRootCapVertex': 8430,
+    'preservedHindquarterCapVertex': 8430,
+    'tailAttachmentVertex': 10,
+    'tailAttachment': 'Central dorsal posterior croup; root guide exactly follows source vertex 10.',
     'tailGuideCount': 9,
     'correctionsRenderingUnits': {'eyeRecess': .009, 'nostrilRecess': .010,
                                  'muzzleNarrowing': .003, 'jawDefinition': .004,
                                  'earRidge': .002},
-    'implementation': 'src/anatomy.ts; guide centroids use fixed first-pose length bins, same vertex IDs in every frame.',
+    'implementation': 'src/anatomy.ts; guide centroids use fixed first-pose length bins, same vertex IDs in every frame. First guide attaches to central croup vertex 10; proximal guide heights are flattened into a coherent dock.',
     'restLandmarkPositions': {
         name: [list(positions[v*3:v*3+3]) for v in vertices]
         for name, vertices in landmarks.items()

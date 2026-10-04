@@ -1,6 +1,6 @@
 # Particle Horse
 
-A detailed equine surface reconstructed as a dense particle cloud, galloping over flowing white particle sand in a black void. One canvas, no visible words or controls. Recorded hoof and sand sounds begin on the first click, tap, or drag; M toggles mute.
+A detailed equine surface reconstructed as a dense particle cloud, galloping through a white particle meadow in a black void. One canvas, no visible words or controls. Recorded hoof and sand sounds begin on the first click, tap, or drag; M toggles mute.
 
 ![Particle Horse](docs/artwork.png)
 
@@ -14,6 +14,8 @@ The initial volume-built horse was replaced with a detailed equine mesh and auth
 
 A GPU position atlas drives 140,000 particles on larger viewports and 68,000 on portrait screens. A depth-only surface hides far-side particles, allowing the chest, neck, knees, hocks and hooves to read as volumes. The underlying solid mesh never writes visible color. Smooth normals and surface-attached fiber shading emphasize the shoulder, barrel and hindquarter muscles as the model deforms. The stride takes 0.9 seconds. The camera follows a restrained 20-second side-to-three-quarter arc. Dragging takes over smoothly, then settles back after three seconds idle. White granular ground moves backward at 6 rendering units per second. Four immutable strike events per stride drive clustered sand eruptions, ballistic settling grains and propulsion pressure across three contoured depth bands; six peripheral wind streams share the same gust and curl field. No wire grid or solid floor is drawn.
 
+A seeded particle meadow adds short curved grass, tilted five-petal flowers and low leafy bushes. Flowers and bushes regularly occupy the hoof corridor; strikes bend and flatten nearby growth while larger white grains launch above it. Terrain and vegetation stream backward together. The quieter ground bed keeps the horse and plants readable.
+
 The source is an authored equine model, not a scan or a clinically validated anatomical reconstruction. [Source provenance, original notices and conversion details](docs/SOURCE.md) remain outside the artwork. The mesh data used in this project was made available by Robert Sumner and Jovan Popovic from the Computer Graphics Group at MIT.
 
 ## Interaction and forces
@@ -26,7 +28,7 @@ Touch taps create a local pulse; touch dragging steers the camera. Camera gestur
 
 Local facial masks refine the muzzle, jaw, ears, eyes and nostrils; facial sampling is denser and excludes body fiber shading. The original solid tail is removed from both surface sampling and depth rendering. 640 seeded strands follow nine animated guide points, with connected filaments and sparkling highlights, anchored roots, delayed tips, gravity and shared wind.
 
-Recorded hoof transients, sand scrapes and settling grit use the same contact events as the visual strikes. Camera-relative stereo placement stays restrained. The first trusted interaction activates sound; M mutes. Hidden tabs, reduced motion and context loss stop playback, and resuming starts at the current gait without queued impacts. Missing audio leaves the artwork running. [Recording provenance and processing](docs/audio-sources.md) document the CC0 sources.
+Short recorded hoof attacks and light grain releases use the same descending sole-contact events as the visual strikes. Samples play near their original speed, with low-mid resonance reduced and a quiet high-passed air bed. Camera-relative stereo placement stays restrained. The first trusted interaction activates sound; M mutes. Hidden tabs, reduced motion and context loss stop playback, and resuming starts at the current gait without queued impacts. Missing audio leaves the artwork running. [Recording provenance and processing](docs/audio-sources.md) document the CC0 sources.
 
 ## Rendering behavior
 
@@ -53,5 +55,6 @@ The canvas fills the viewport. Slow frames shorten draw ranges over randomly ord
 9. `checkpoint-9`: layered clustered sand, calibrated terrain, distinct strikes and settling grains.
 10. `checkpoint-10`: refined facial landmarks, sharper sparkle and a connected strand tail.
 11. `checkpoint-11`: recorded contact-driven audio, lifecycle verification, audiovisual evidence and final measurements.
+12. `checkpoint-12`: clean short contact audio, central tail dock, stronger touchdown kicks, grass, flowers and leafy bushes.
 
 The earlier visual experiments remain in Git history; they are replaced in the final artwork. The history also retains failing regression tests and their fixes. Website deployment is separate.

@@ -122,7 +122,17 @@ export async function createArtwork() {
   };
   const wake = createParticleWake(renderer, count, cloud, uniforms);
   const particleUniforms = { ...uniforms, ...wake.uniforms, wakePass: { value: 0 } };
-  const hair = createHair(scene, anatomy, particleUniforms);
+  const dock = mesh.positions.subarray(10 * 3, 10 * 3 + 3);
+  let rootParticle = 0, rootDistance = Infinity;
+  for (let i = 0; i < Math.floor(count * .35); i++) {
+    const distance = (cloud.restPoints[i * 3] - dock[0]) ** 2 +
+      (cloud.restPoints[i * 3 + 1] - dock[1]) ** 2 +
+      (cloud.restPoints[i * 3 + 2] - dock[2]) ** 2;
+    if (distance < rootDistance) { rootParticle = i; rootDistance = distance; }
+  }
+  const hair = createHair(scene, anatomy, { ...particleUniforms,
+    hairRootWakeUv: { value: new THREE.Vector2(wake.uv[rootParticle * 2], wake.uv[rootParticle * 2 + 1]) },
+  });
   const faceWeight = new Float32Array(count), featureWeight = new Float32Array(count * 4);
   for (let i = 0; i < count; i++) {
     const weights = [cloud.weights[i * 2], cloud.weights[i * 2 + 1], 1 - cloud.weights[i * 2] - cloud.weights[i * 2 + 1]];

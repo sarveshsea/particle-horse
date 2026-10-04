@@ -1,6 +1,6 @@
 # Recorded sound sources
 
-The soundtrack uses real recorded horse and sand samples. There is no independently timed gallop loop: the four authored contact events per stride trigger individual hoof transients, a grain scrape, and a quiet settling texture. First trusted pointer interaction unlocks Web Audio; M mutes. Hidden, reduced-motion, and context-loss pauses stop voices. No catch-up impacts play on resume.
+The soundtrack uses real recorded horse and sand samples. There is no independently timed gallop loop: the four authored contact events per stride trigger individual hoof transients and a light grain release, above a very quiet original-speed air bed. First trusted pointer interaction unlocks Web Audio; M mutes. Hidden, reduced-motion, and context-loss pauses stop voices. No catch-up impacts play on resume.
 
 ## Horse
 
@@ -8,7 +8,7 @@ The soundtrack uses real recorded horse and sand samples. There is no independen
 
 Downloaded public high-quality preview: `https://cdn.freesound.org/previews/175/175356_2861652-hq.mp3`. This is a compressed source preview, not the original recorder master. SHA256: `ed8c2339488feca16a050f22101b7921034d646e8f479c577966d67d1b345c94`.
 
-Four 210 ms sections begin at 0.90, 1.16, 1.98, and 2.50 seconds. Decoded to mono 22,050 Hz PCM16, high-pass 75 Hz, low-pass 9 kHz, 5 ms attack fade, 50 ms release fade, normalized separately to peak 22,000/32,768. The very short edits isolate contact transients rather than horse breathing or the original gallop rhythm. Runtime varies playback rate modestly and retains low gain; a dynamics compressor protects the mixed output.
+Four 130 ms sections begin at 0.925, 1.18, 2.005, and 2.525 seconds. Variants 1 and 3 then remove 20 and 25 ms of remaining pre-attack respectively and refill the end with silence; final transient maxima fall within the first 30 ms. Decoded to mono 22,050 Hz PCM16, high-pass 180 Hz, broad -4 dB cut at 420 Hz, low-pass 9.5 kHz, 2 ms attack fade and 55 ms release fade. Normalized to peak 20,500/32,768. Shortening removes overlapping original contacts and the low-mid cut reduces muddy resonance. Runtime rates stay between 0.99 and 1.026; the contact grain layer follows 16 ms later at less than 21% of hoof gain. There is no third slow-pitched scrape. A compressor protects the output; no reverberation is added.
 
 ## Sand
 
@@ -16,7 +16,9 @@ Four 210 ms sections begin at 0.90, 1.16, 1.98, and 2.50 seconds. Decoded to mon
 
 Downloaded archive: `https://opengameart.org/sites/default/files/Fantozzi-footsteps.7z`. SHA256: `415d360e0911c1c1c5355ee94023b772e6f4044f59b9b580610e7dbffd1840fd`.
 
-Only the lossless sand recordings L1, R1, L2, R2 are used. First 480 ms of each recording: mono 22,050 Hz PCM16, high-pass 380 Hz, 12 ms attack fade and 160 ms release fade. Contact playback adds an 800 Hz high-pass. A deterministic four-second granular overlap-add bed is built from 90 ms Hann-windowed segments of sand L1 with 25 ms spacing and circular accumulation (seed 71). It removes the original footstep cadence, loops continuously, and supplies quiet slow-rate, low-pass air/grain ambience; no synthetic wind oscillator is used.
+Only lossless sand recordings L1, R1, L2, R2 are used. The 170 ms sections begin at 25 ms: mono 22,050 Hz PCM16, high-pass 1.4 kHz, low-pass 9.8 kHz, 6 ms attack fade and 105 ms release fade. Peaks are normalized to 12,000/32,768. Rates remain above unity, preserving crisp grain texture without introducing low-pitched rumble.
+
+A deterministic four-second granular overlap-add bed uses 60 ms Hann-windowed sections of processed sand L1, 18 ms spacing and circular accumulation, seed 71. It loops at original rate through a 1.8 kHz high-pass at only 0.004 gain. This replaces the earlier 0.28-rate low-pass bed.
 
 ## Validation limits
 

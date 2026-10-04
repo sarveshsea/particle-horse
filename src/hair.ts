@@ -24,7 +24,10 @@ export function hairPoint(anatomy:HairGuide,time:number,u:number,strand:ArrayLik
   out[axis]=.5*((2*q[1])+(-q[0]+q[2])*mix+(2*q[0]-5*q[1]+4*q[2]-q[3])*mix*mix+(-q[0]+3*q[1]-3*q[2]+q[3])*mix*mix*mix);
  }
  const phase=2*Math.PI*((time%anatomy.mesh.cycleSeconds)/anatomy.mesh.cycleSeconds);
- out[0]-=.32*t*t;out[1]-=.38*t*t;
+ out[0]-=.32*t*t;out[1]-=.22*t*t;
+ const rootSpread=.021*strand[2]*(1-t)**2;
+ out[0]-=.004*(1-t);out[1]+=.005*(1-t)+Math.abs(Math.sin(strand[0]))*rootSpread*.35;
+ out[2]+=Math.cos(strand[0])*rootSpread;
  const width=(.014+.106*t)*strand[2];
  out[1]+=Math.sin(strand[0])*width*t+Math.sin(phase-t*5+strand[0])*.028*t*t;
  out[2]+=Math.cos(strand[0])*width*t+Math.sin(phase-t*4+strand[3]*6)*.045*t*t;
@@ -42,6 +45,9 @@ uniform float hairPixelRatio;
 uniform vec3 wakePointer;
 uniform vec3 wakeDirection;
 uniform float wakeStrength;
+uniform sampler2D wakeTexture;
+uniform float wakeEnabled;
+uniform vec2 hairRootWakeUv;
 varying float hairLight;
 varying float taper;
 ${WIND_GLSL}
@@ -55,10 +61,21 @@ vec3 tailAt(float u,float delayed){
  vec3 q2=mix(guide(b,fa),guide(b,fb),blend),q3=mix(guide(d,fa),guide(d,fb),blend);
  return .5*(2.*q1+(-q0+q2)*s+(2.*q0-5.*q1+4.*q2-q3)*s*s+(-q0+3.*q1-3.*q2+q3)*s*s*s);
 }
+vec3 rootOffset(vec3 root){
+ if(wakeEnabled>.5&&hairRootWakeUv.x>=0.)return texture2D(wakeTexture,hairRootWakeUv).xyz;
+ vec3 delta=root-wakePointer;float distance=length(delta);
+ float influence=pow(max(0.,1.-distance/.8),2.)*wakeStrength;
+ vec3 displacement=(delta/max(distance,.06)*.5+wakeDirection*.8)*influence;
+ displacement+=windAt(root,hairTime)*.06*influence;
+ return displacement*.8/max(.8,length(displacement));
+}
 void main(){
  float u=parameter;vec3 p=tailAt(u*strand.y,hairTime-u*.048);
  float width=(.014+.106*u)*strand.z;
- p.x-=.32*u*u;p.y-=.38*u*u;
+ p.x-=.32*u*u;p.y-=.22*u*u;
+ float rootSpread=.021*strand.z*pow(1.-u,2.);
+ p.x-=.004*(1.-u);p.y+=.005*(1.-u)+abs(sin(strand.x))*rootSpread*.35;p.z+=cos(strand.x)*rootSpread;
+ p+=rootOffset(tailAt(0.,hairTime))*(1.-.35*u);
  p.y+=sin(strand.x)*width*u;p.z+=cos(strand.x)*width*u;
  vec3 wind=windAt(p+vec3(strand.w*.2),hairTime);
  p+=wind*.11*u*u;
@@ -69,16 +86,17 @@ void main(){
  p+=(delta/max(d,.06)*.28+wakeDirection*.36)*force;
  vec4 view=modelViewMatrix*vec4(p,1.);gl_Position=projectionMatrix*view;
  taper=1.-u*.85;gl_PointSize=clamp((5.2+strand.w*3.)*hairPixelRatio/-view.z,.7,2.3*hairPixelRatio)*(.65+.35*taper);
- hairLight=(.48+strand.w*.38)*(.55+.45*taper);
+ hairLight=(.33+strand.w*.42)*(.42+.58*taper);
 }`;
 const fragmentShader=`varying float hairLight;varying float taper;
-void main(){float r=length(gl_PointCoord-.5)*2.;if(r>1.)discard;gl_FragColor=vec4(vec3(hairLight),(.70*(1.-smoothstep(.15,.46,r))+.10*exp(-r*r*6.))*(.36+.12*taper));}`;
+void main(){float r=length(gl_PointCoord-.5)*2.;if(r>1.)discard;gl_FragColor=vec4(vec3(hairLight),(.70*(1.-smoothstep(.15,.46,r))+.10*exp(-r*r*6.))*(.20+.08*taper));}`;
 export function createHair(scene:THREE.Scene,anatomy:Anatomy,sharedUniforms:Record<string,THREE.IUniform>){
  const cloud=generateHair(),data=new Float32Array(anatomy.guideCount*anatomy.mesh.frameCount*4);
  for(let i=0;i<anatomy.tailGuide.length/3;i++)data.set(anatomy.tailGuide.subarray(i*3,i*3+3),i*4);
  const atlas=new THREE.DataTexture(data,anatomy.guideCount,anatomy.mesh.frameCount,THREE.RGBAFormat,THREE.FloatType);
  atlas.needsUpdate=true;atlas.minFilter=atlas.magFilter=THREE.NearestFilter;
  const uniforms={...sharedUniforms,hairAtlas:{value:atlas},guideCount:{value:anatomy.guideCount},hairFrames:{value:anatomy.mesh.frameCount},cycleSeconds:{value:anatomy.mesh.cycleSeconds},hairTime:{value:0},hairPixelRatio:{value:1},
+ hairRootWakeUv:sharedUniforms.hairRootWakeUv??{value:new THREE.Vector2(-1,-1)},wakeEnabled:sharedUniforms.wakeEnabled??{value:0},wakeTexture:sharedUniforms.wakeTexture??{value:atlas},
  wakePointer:sharedUniforms.wakePointer??{value:new THREE.Vector3(100,100,100)},wakeDirection:sharedUniforms.wakeDirection??{value:new THREE.Vector3()},wakeStrength:sharedUniforms.wakeStrength??{value:0}};
  const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.BufferAttribute(cloud.positions,3));geometry.setAttribute('strand',new THREE.BufferAttribute(cloud.strand,4));geometry.setAttribute('parameter',new THREE.BufferAttribute(cloud.parameter,1));
  const material=new THREE.ShaderMaterial({uniforms,vertexShader,fragmentShader,transparent:true,depthWrite:false,depthTest:true,blending:THREE.AdditiveBlending});
@@ -92,7 +110,7 @@ export function createHair(scene:THREE.Scene,anatomy:Anatomy,sharedUniforms:Reco
  }
  lineGeometry.setIndex(new THREE.BufferAttribute(indices,1));
  const lineMaterial=new THREE.ShaderMaterial({uniforms,vertexShader,
-  fragmentShader:'varying float hairLight;varying float taper;void main(){gl_FragColor=vec4(vec3(hairLight),.055*(.38+.62*taper));}',
+  fragmentShader:'varying float hairLight;varying float taper;void main(){gl_FragColor=vec4(vec3(hairLight),.038*(.38+.62*taper));}',
   transparent:true,depthWrite:false,depthTest:true,blending:THREE.AdditiveBlending});
  const lines=new THREE.LineSegments(lineGeometry,lineMaterial);lines.frustumCulled=false;lines.renderOrder=2.5;scene.add(lines);
  return {points,lines,geometry,material,
