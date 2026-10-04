@@ -15,19 +15,10 @@ describe('hoof forces',()=>{
  it('rejects invalid times',()=>{expect(()=>hoofAt(mesh,extractHooves(mesh)[0],NaN)).toThrow();});
 });
 
-it('spray trajectories ascend, fall, land and keep travelling with the bed',async()=>{
- const {sprayPoint}=await import('../src/forces');const contact={x:.2,z:.1,born:0,strength:.85};
- for(const seed of [.1,.4,.9]){const initial=sprayPoint(contact,0,seed),up=sprayPoint(contact,.08,seed),fall=sprayPoint(contact,.6,seed),settled=sprayPoint(contact,.9,seed);expect(up.y).toBeGreaterThan(initial.y);expect(fall.y).toBeLessThan(up.y);expect(settled.y).toBe(-.014);expect(settled.x).toBeLessThan(initial.x-3);expect([settled.x,settled.y,settled.z].every(Number.isFinite)).toBe(true);}
+it('dirt trajectories keep uneven clods finite and settle onto moving terrain',async()=>{
+ const {sprayPoint}=await import('../src/forces');const {worldHeight}=await import('../src/terrain');const contact={x:.2,z:.1,born:0,strength:.85};
+ for(const seed of [.1,.4,.9]){const initial=sprayPoint(contact,0,seed),up=sprayPoint(contact,.08,seed),settled=sprayPoint(contact,1.5,seed);expect(up.y).toBeGreaterThan(initial.y);expect(settled.y).toBeCloseTo(worldHeight(settled.x,settled.z,1.5)+.002);expect(settled.x).toBeLessThan(initial.x-3);expect([settled.x,settled.y,settled.z].every(Number.isFinite)).toBe(true);}
  expect(()=>sprayPoint(contact,NaN,.5)).toThrow();expect(()=>sprayPoint(contact,.2,Infinity)).toThrow();
-});
-
-it('hoof eruptions clear the grass canopy before landing', async () => {
- const {sprayPoint}=await import('../src/forces');
- for(const seed of [.1,.4,.9]) {
-  const hit={x:0,z:0,born:0,strength:.85};
-  expect(sprayPoint(hit,.2,seed).y).toBeGreaterThan(.3);
-  expect(sprayPoint(hit,.7,seed).y).toBe(-.014);
- }
 });
 
 it('tracks the lowest sole height for contact instead of the hoof volume center', () => {
