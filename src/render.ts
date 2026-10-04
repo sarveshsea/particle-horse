@@ -66,7 +66,7 @@ export function createArtwork() {
  }
  function resize() {
   const width=innerWidth,height=innerHeight;
-  renderer.setPixelRatio(Math.min(devicePixelRatio,1.75)); renderer.setSize(width,height);
+  renderer.setPixelRatio(Math.min(devicePixelRatio,1.75)*Math.sqrt(material.uniforms.density.value)); renderer.setSize(width,height);
   material.uniforms.pixelRatio.value=renderer.getPixelRatio();
   camera.aspect=width/height;
   camera.position.set(5.3,3.0,10.9).multiplyScalar(Math.max(1,1.15/camera.aspect));
@@ -74,5 +74,5 @@ export function createArtwork() {
  }
  resize();staticPose();renderer.render(scene,camera);
  window.addEventListener('resize',resize);
- return {renderer,scene,camera,geometry,material,matrices,segment,horse};
+ return {renderer,scene,camera,geometry,material,matrices,segment,horse,resize};
 }

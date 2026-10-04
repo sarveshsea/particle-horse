@@ -17,7 +17,7 @@ export function createEnvironment(scene:THREE.Scene) {
  p.y+=sin(p.x*1.6-time*7.+p.z*2.)*.075*nearHorse;
  vec4 view=modelViewMatrix*vec4(p,1.);gl_Position=projectionMatrix*view;
  gl_PointSize=clamp(22.*pixelRatio/-view.z,1.,2.5*pixelRatio);
- alpha=(.25+.22*nearHorse)*exp(-length(p.xz)*.09)*step(.18,seed);}`,fragmentShader:dotFragment,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending});
+ alpha=(.36+.22*nearHorse)*exp(-length(p.xz)*.09)*step(.18,seed);}`,fragmentShader:dotFragment,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending});
  const grid=new THREE.Points(geometry,material);grid.frustumCulled=false;scene.add(grid);
  const trailCount=2600,trailPositions=new Float32Array(trailCount*3),trailSeeds=new Float32Array(trailCount);
  for(let i=0;i<trailCount;i++){trailPositions.set([random(),random(),random()],i*3);trailSeeds[i]=random();}

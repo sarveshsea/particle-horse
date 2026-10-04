@@ -31,9 +31,7 @@ function animate(now:number) {
  if(++frame%90===0&&samples){diagnostics.averageFrameMs=total/samples;quality=qualityForFrame(quality,total/samples);diagnostics.quality=quality;
   art.material.uniforms.density.value=quality;
   diagnostics.particles=Math.floor(art.geometry.getAttribute('position').count*quality);
-  art.renderer.setPixelRatio(Math.min(devicePixelRatio,1.75)*Math.sqrt(quality));
-  art.renderer.setSize(innerWidth,innerHeight);
-  art.material.uniforms.pixelRatio.value=art.renderer.getPixelRatio();total=0;samples=0;}
+  art.resize();total=0;samples=0;}
  draw();raf=requestAnimationFrame(animate);
 }
 function restart() {
