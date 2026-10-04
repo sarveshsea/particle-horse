@@ -69,3 +69,10 @@ describe('camera motion', () => {
     expect(control.dragging).toBe(false);
   });
 });
+it('freezes the camera at the current hill height when reduced motion begins',async()=>{
+ const {worldHeight}=await import('../src/terrain');const {Vector3}=await import('three');
+ const canvas=Object.assign(new EventTarget(),{style:{touchAction:''},setPointerCapture(){},releasePointerCapture(){},hasPointerCapture(){return false;}});
+ const camera=new PerspectiveCamera(34,1.44),control=createCameraMotion(camera,canvas as unknown as HTMLCanvasElement);
+ control.update(2.5,.016,true);const targetHeight=camera.position.y+camera.getWorldDirection(new Vector3()).y*cameraTarget(0,1.44).radius;
+ expect(targetHeight).toBeCloseTo(1.07+worldHeight(0,0,2.5),7);control.dispose();
+});
