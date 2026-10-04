@@ -11,3 +11,13 @@ describe('shared anatomical contact timeline',()=>{
  it('returns immutable event copies and handles rewind or idle without strikes',()=>{const timeline=createContactTimeline(mesh);expect(contactsBetween(timeline,.2,.2)).toEqual([]);expect(contactsBetween(timeline,1,0)).toEqual([]);const first=contactsBetween(timeline,0,1),again=contactsBetween(timeline,0,1);expect(first).toEqual(again);expect(first[0]).not.toBe(again[0]);});
  it('rejects invalid time windows and bounds catch-up after long gaps',()=>{const timeline=createContactTimeline(mesh);expect(()=>contactsBetween(timeline,NaN,1)).toThrow();expect(()=>contactsBetween(timeline,0,Infinity)).toThrow();expect(contactsBetween(timeline,0,1e8).length).toBeLessThanOrEqual(260);});
 });
+
+it('strikes start on descending touchdown rather than at the later minimum', async () => {
+ const {extractHooves,hoofAt}=await import('../src/forces');
+ const tracks=extractHooves(mesh), timeline=createContactTimeline(mesh);
+ for(const strike of timeline.strikes) {
+  const track=tracks[strike.hoof], at=hoofAt(mesh,track,strike.phase), before=hoofAt(mesh,track,strike.phase-.001);
+  expect(at.y).toBeCloseTo(track.floor+.025,5);
+  expect(before.y).toBeGreaterThan(at.y);
+ }
+});
