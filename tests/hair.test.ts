@@ -23,7 +23,7 @@ test('strand roots remain anchored and the gait loop is continuous',()=>{
 
 test('hair renderer shares force uniforms, adapts complete strands, and releases its scene resources',async()=>{
  const THREE=await import('three');const {createHair}=await import('../src/hair');
- const scene=new THREE.Scene(),shared={wakePointer:{value:new THREE.Vector3()},wakeDirection:{value:new THREE.Vector3()},wakeStrength:{value:0}};
+ const scene=new THREE.Scene(),shared={brushStart:{value:Array.from({length:8},()=>new THREE.Vector4())},brushEnd:{value:Array.from({length:8},()=>new THREE.Vector4())},brushDirection:{value:Array.from({length:8},()=>new THREE.Vector4())},brushView:{value:new THREE.Vector3(0,0,-1)},brushCount:{value:0},wakePointer:{value:new THREE.Vector3()},wakeDirection:{value:new THREE.Vector3()},wakeStrength:{value:0}};
  const anatomy={...guide,faceWeights:new Float32Array(),featureWeights:new Float32Array(),tailMask:new Uint8Array(),landmarks:{eyes:[4279,5441],nostrils:[3333,4547],jaws:[3543,4758],ears:[3876,5088]},mesh:{...guide.mesh,vertexCount:3,triangleCount:1,positions:new Float32Array(18),topology:new Uint32Array([0,1,2])}} as Parameters<typeof createHair>[1];
  const renderer=createHair(scene,anatomy,shared);
  expect(scene.children).toContain(renderer.points);
@@ -37,6 +37,10 @@ test('hair renderer shares force uniforms, adapts complete strands, and releases
  expect(renderer.lines.material.uniforms.hairAtlas).toBe(renderer.material.uniforms.hairAtlas);
  renderer.update(.2,{point:new THREE.Vector3(1,2,3),direction:new THREE.Vector3(1,0,0),strength:.8},1.5);
  expect(renderer.material.uniforms.wakePointer).toBe(shared.wakePointer);
+ expect(renderer.material.uniforms.brushStart).toBe(shared.brushStart);
+ expect(renderer.lines.material.uniforms.brushEnd).toBe(shared.brushEnd);
+ expect(renderer.material.vertexShader).toContain('brushForce(root)*.016');
+ expect(renderer.material.vertexShader).toContain('brushForce(p)');
  expect(shared.wakePointer.value.x).toBe(1);
  expect(renderer.material.uniforms.hairTime.value).toBe(.2);
  renderer.update(NaN,undefined,NaN);expect(renderer.material.uniforms.hairTime.value).toBe(0);
