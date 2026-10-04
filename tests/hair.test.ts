@@ -69,3 +69,10 @@ test('proximal strands spread before the long trailing hair without collapsing i
  for(let i=0;i<100;i++){const strand=cloud.strand.slice(i*48*4,i*48*4+4);const point=hairPoint(guide,0,.2,strand);minZ=Math.min(minZ,point[2]);maxZ=Math.max(maxZ,point[2]);}
  expect(maxZ-minZ).toBeGreaterThan(.07);
 });
+
+test('hair opens into a continuous bundle immediately beyond the dock',()=>{
+ const cloud=generateHair(200,48);let minZ=Infinity,maxZ=-Infinity;
+ for(let i=0;i<200;i++){const strand=cloud.strand.slice(i*48*4,i*48*4+4);const point=hairPoint(guide,0,.1,strand);minZ=Math.min(minZ,point[2]);maxZ=Math.max(maxZ,point[2]);
+ expect(Math.abs(point[2])).toBeLessThan(.15);}
+ expect(maxZ-minZ).toBeGreaterThan(.05);
+});
