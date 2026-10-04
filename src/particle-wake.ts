@@ -2,8 +2,9 @@ import * as THREE from 'three';
 import { GPUComputationRenderer } from 'three/addons/misc/GPUComputationRenderer.js';
 import type { sampleSurface } from './equine';
 import { WIND_GLSL } from './forces';
+import { BRUSH_GLSL,validBrushSegments,type BrushSegment } from './brush';
 type Cloud = ReturnType<typeof sampleSurface>;
-export interface WakePointer { point: THREE.Vector3; direction: THREE.Vector3; strength: number }
+export interface WakePointer { point: THREE.Vector3; direction: THREE.Vector3; strength: number; segments?: readonly BrushSegment[]; view?: THREE.Vector3 }
 type AtlasUniforms = {
  atlas: {value: THREE.DataTexture}; atlasSize:{value:THREE.Vector2};
  vertexCount:{value:number}; frame:{value:THREE.Vector3};
@@ -17,13 +18,10 @@ uniform vec3 wakeDirection;
 uniform float wakeStrength;
 uniform float wakeTime;
 ${WIND_GLSL}
+${BRUSH_GLSL}
 vec3 particleOffset(vec3 anchor,float particleSeed){
  if(wakeEnabled>.5)return texture2D(wakeTexture,wakeUv).xyz;
- vec3 delta=anchor-wakePointer;
- float d=length(delta);
- float e=pow(max(0.,1.-d/.8),2.)*wakeStrength;
- vec3 displacement=(delta/max(d,.06)*.5+wakeDirection*.8)*e;
- displacement+=windAt(anchor+vec3(particleSeed*.2),wakeTime)*.06*e;
+ vec3 displacement=brushForce(anchor)*.016;
  return displacement*.8/max(.8,length(displacement));
 }
 `;
@@ -43,14 +41,13 @@ uniform float simulationCount;
 vec3 at(float index,float pose){float id=index+pose*vertexCount;return texture2D(atlas,(vec2(mod(id,atlasSize.x),floor(id/atlasSize.x))+.5)/atlasSize).xyz;}
 vec3 animated(float id){return mix(at(id,frame.x),at(id,frame.y),frame.z);}
 ${WIND_GLSL}
+${BRUSH_GLSL}
 vec3 acceleration(vec2 uv,vec3 offset,vec3 velocity){
- if(strength<.001&&dot(offset,offset)<1e-8&&dot(velocity,velocity)<1e-8)return vec3(0.);
+ if(brushCount<.5&&dot(offset,offset)<1e-8&&dot(velocity,velocity)<1e-8)return vec3(0.);
  vec3 tri=texture2D(triangleData,uv).xyz;
  vec2 w=texture2D(weightData,uv).xy;
  vec3 anchor=animated(tri.x)*w.x+animated(tri.y)*w.y+animated(tri.z)*(1.-w.x-w.y);
- vec3 delta=anchor+offset-pointer;
- float d=length(delta),e=pow(max(0.,1.-d/.8),2.)*strength;
- vec3 force=(delta/max(d,.06)*36.+direction*80.)*e;
+ vec3 force=brushForce(anchor+offset);
  float detached=smoothstep(.015,.2,length(offset));
  vec3 wind=windAt(anchor+offset,time);
  return force+wind*detached-offset*48.-velocity*13.;
@@ -63,7 +60,7 @@ export function createParticleWake(renderer:THREE.WebGLRenderer,count:number,clo
  for(let i=0;i<count;i++){uv[i*2]=(i%width+.5)/width;uv[i*2+1]=(Math.floor(i/width)+.5)/height;}
  const blank=new THREE.DataTexture(new Float32Array(4),1,1,THREE.RGBAFormat,THREE.FloatType);
  blank.needsUpdate=true;
- const uniforms={wakeTexture:{value:blank as THREE.Texture},wakeEnabled:{value:0},wakePointer:{value:new THREE.Vector3(100,100,100)},wakeDirection:{value:new THREE.Vector3()},wakeStrength:{value:0},wakeTime:{value:0}};
+ const uniforms={wakeTexture:{value:blank as THREE.Texture},wakeEnabled:{value:0},wakePointer:{value:new THREE.Vector3(100,100,100)},wakeDirection:{value:new THREE.Vector3()},wakeStrength:{value:0},wakeTime:{value:0},brushStart:{value:Array.from({length:8},()=>new THREE.Vector4())},brushEnd:{value:Array.from({length:8},()=>new THREE.Vector4())},brushDirection:{value:Array.from({length:8},()=>new THREE.Vector4())},brushView:{value:new THREE.Vector3(0,0,-1)},brushCount:{value:0}};
  const simulationCount={value:count};
  const ownedTextures:THREE.DataTexture[]=[];
  let gpu:GPUComputationRenderer|undefined,offset:ReturnType<GPUComputationRenderer['addVariable']>|undefined;
@@ -80,13 +77,17 @@ export function createParticleWake(renderer:THREE.WebGLRenderer,count:number,clo
   velocity=gpu.addVariable('velocityState',`${shared}void main(){if((gl_FragCoord.y-.5)*resolution.x+gl_FragCoord.x-.5>=simulationCount){gl_FragColor=vec4(0.);return;}vec2 uv=gl_FragCoord.xy/resolution.xy;vec3 p=texture2D(offsetState,uv).xyz,v=texture2D(velocityState,uv).xyz;v+=acceleration(uv,p,v)*stepTime;v*=8./max(8.,length(v));gl_FragColor=vec4(v,1.);}`,initial);
   for(const variable of [offset,velocity]){
    gpu.setVariableDependencies(variable,[offset,velocity]);
-   Object.assign(variable.material.uniforms,atlasUniforms,{triangleData:{value:triangles},weightData:{value:weights},simulationCount,stepTime:{value:1/60},time:uniforms.wakeTime,pointer:uniforms.wakePointer,direction:uniforms.wakeDirection,strength:uniforms.wakeStrength});
+   Object.assign(variable.material.uniforms,atlasUniforms,{brushStart:uniforms.brushStart,brushEnd:uniforms.brushEnd,brushDirection:uniforms.brushDirection,brushView:uniforms.brushView,brushCount:uniforms.brushCount},{triangleData:{value:triangles},weightData:{value:weights},simulationCount,stepTime:{value:1/60},time:uniforms.wakeTime,pointer:uniforms.wakePointer,direction:uniforms.wakeDirection,strength:uniforms.wakeStrength});
   }
   if(gpu.init()===null){uniforms.wakeEnabled.value=1;uniforms.wakeTexture.value=gpu.getCurrentRenderTarget(offset).texture;}
   else {gpu.dispose();gpu=undefined;}
  }
  function update(time:number,dt:number,pointer:WakePointer){
   uniforms.wakeTime.value=Number.isFinite(time)?time:uniforms.wakeTime.value;
+  const segments=validBrushSegments(pointer.segments??[],uniforms.wakeTime.value);
+  uniforms.brushCount.value=segments.length;
+  if(pointer.view)uniforms.brushView.value.copy(pointer.view);
+  segments.forEach((s,i)=>{uniforms.brushStart.value[i].set(...s.start,s.radius);uniforms.brushEnd.value[i].set(...s.end,s.strength);uniforms.brushDirection.value[i].set(...s.direction,Math.max(0,time-s.born));});
   const elapsed=Number.isFinite(dt)?Math.max(0,Math.min(dt,.05)):0;
   const pointerFinite=[...pointer.point.toArray(),...pointer.direction.toArray()].every(Number.isFinite);
   const requested=Number.isFinite(pointer.strength)&&pointerFinite?Math.max(0,Math.min(1,pointer.strength)):0;
@@ -106,7 +107,7 @@ export function createParticleWake(renderer:THREE.WebGLRenderer,count:number,clo
   uniforms.wakeTexture.value=gpu.getCurrentRenderTarget(offset).texture;
  }
  function reset(){
-  accumulator=0;uniforms.wakeStrength.value=0;activeUntil=-Infinity;wasActive=false;
+  accumulator=0;uniforms.brushCount.value=0;uniforms.wakeStrength.value=0;activeUntil=-Infinity;wasActive=false;
   if(gpu&&initial&&offset&&velocity)for(const variable of [offset,velocity])for(const target of variable.renderTargets)gpu.renderTexture(initial,target);
  }
  function maximumDisplacement(){
@@ -117,5 +118,5 @@ export function createParticleWake(renderer:THREE.WebGLRenderer,count:number,clo
   for(let i=0;i<count;i++)maximum=Math.max(maximum,Math.hypot(pixels[i*4],pixels[i*4+1],pixels[i*4+2]));
   return maximum;
  }
- return {setQuality(quality:number){simulationCount.value=Math.floor(count*Math.max(.35,Math.min(1,Number.isFinite(quality)?quality:1)));},clearForce(){uniforms.wakeStrength.value=0;},get active(){return wasActive;},maximumDisplacement,dispose(){gpu?.dispose();blank.dispose();for(const texture of ownedTextures)texture.dispose();},uniforms,uv,supported:uniforms.wakeEnabled.value===1,update,reset,get texture(){return uniforms.wakeTexture.value;}};
+ return {setQuality(quality:number){simulationCount.value=Math.floor(count*Math.max(.35,Math.min(1,Number.isFinite(quality)?quality:1)));},clearForce(){uniforms.wakeStrength.value=0;uniforms.brushCount.value=0;},get active(){return wasActive;},maximumDisplacement,dispose(){gpu?.dispose();blank.dispose();for(const texture of ownedTextures)texture.dispose();},uniforms,uv,supported:uniforms.wakeEnabled.value===1,update,reset,get texture(){return uniforms.wakeTexture.value;}};
 }

@@ -10,7 +10,7 @@ async function start() {
     environment = createEnvironment(art.scene);
   const meadow = createMeadow(art.scene, innerWidth < 600);
   const sound = createHorseAudio(art.renderer.domElement);
-  const interaction = createInteraction(art.camera, art.renderer.domElement);
+  const interaction = createInteraction(art.camera, art.renderer.domElement, art.mesh);
   const cameraMotion = createCameraMotion(art.camera, art.renderer.domElement, event => interaction.tap(event));
   const reduced = matchMedia("(prefers-reduced-motion: reduce)");
   let time = 0,
@@ -45,13 +45,14 @@ async function start() {
     dragging: false,
     simulation: art.wake.supported ? "gpu" : "analytic",
     inspectWake: () => art.wake.maximumDisplacement(),
+    inspectBrush: () => interaction.inspect(),
   };
   Object.defineProperty(window, "__ARTWORK", { value: diagnostics });
   function draw() {
     art.setTime(time);
     cameraMotion.update(time, elapsed, reduced.matches);
     if (cameraMotion.dragging) art.wake.clearForce();
-    const pointer = interaction.update(reduced.matches || cameraMotion.dragging);
+    const pointer = interaction.update(reduced.matches || cameraMotion.dragging, time);
     art.wake.update(time, reduced.matches ? 0 : elapsed, pointer);
     art.scattered.visible = !reduced.matches && art.wake.active;
     environment.setPointer(pointer.point, pointer.strength);

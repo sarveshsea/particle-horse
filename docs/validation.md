@@ -119,3 +119,7 @@ Apple M3 Pro, 12-core CPU, 36 GB RAM, headless Chromium 153 using the physical G
 ## Checkpoint 13 — clean strand tail
 
 The tail uses normal alpha filaments, a smooth immediately opening strand bundle, and sparse highlight grains rather than additive accumulation. Roots retain the central croup attachment and body wake coupling. Seven hair checks pass, including proximal spread and anchored root continuity; the production build passes and the desktop frame was inspected. Seeded botanical sampling and bounded brush primitives land as tested infrastructure for the next checkpoints so their preceding RED tests remain green.
+
+## Checkpoint 14 — depth-aware sculptural cursor
+
+An eight-segment world-space brush now picks the animated horse triangles or procedural ground instead of a flat plane. Sweeps apply bounded directional and curling forces with depth attenuation; surface transitions, misses, and long jumps reset continuity. GPU inputs reject invalid segments. Hair consumes the identical history and its analytic roots match horse fallback displacement. Eight targeted browser checks pass for actual surface selection, restoration, dragging, touch, reduced motion, and float-target fallback. Earlier automatic four-hoof strike regression is retained.

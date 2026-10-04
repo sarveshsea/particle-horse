@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { frameAt,randomSource } from './equine';
 import type { Anatomy } from './anatomy';
 import { WIND_GLSL } from './forces';
+import { BRUSH_GLSL } from './brush';
 import type { WakePointer } from './particle-wake';
 type HairGuide=Readonly<{tailGuide:Float32Array;guideCount:number;mesh:Readonly<{frameCount:number;cycleSeconds:number}>}>;
 export function generateHair(count=640,samples=48,seed=107){
@@ -53,6 +54,7 @@ uniform vec2 hairRootWakeUv;
 varying float hairLight;
 varying float taper;
 ${WIND_GLSL}
+${BRUSH_GLSL}
 vec3 guide(float index,float pose){return texture2D(hairAtlas,(vec2(index,pose)+.5)/vec2(guideCount,hairFrames)).xyz;}
 vec3 tailAt(float u,float delayed){
  float phase=mod(mod(delayed,cycleSeconds)+cycleSeconds,cycleSeconds)/cycleSeconds*hairFrames;
@@ -65,10 +67,7 @@ vec3 tailAt(float u,float delayed){
 }
 vec3 rootOffset(vec3 root){
  if(wakeEnabled>.5&&hairRootWakeUv.x>=0.)return texture2D(wakeTexture,hairRootWakeUv).xyz;
- vec3 delta=root-wakePointer;float distance=length(delta);
- float influence=pow(max(0.,1.-distance/.8),2.)*wakeStrength;
- vec3 displacement=(delta/max(distance,.06)*.5+wakeDirection*.8)*influence;
- displacement+=windAt(root,hairTime)*.06*influence;
+ vec3 displacement=brushForce(root)*.016;
  return displacement*.8/max(.8,length(displacement));
 }
 void main(){
@@ -83,9 +82,8 @@ void main(){
  p+=wind*.11*u*u;
  p.y+=sin(hairTime*10.1-u*5.+strand.x)*.026*u*u;
  p.z+=sin(hairTime*8.7-u*4.+strand.w*6.)*.035*u*u;
- vec3 delta=p-wakePointer;float d=length(delta);
- float force=pow(max(0.,1.-d/.8),2.)*wakeStrength*u*u;
- p+=(delta/max(d,.06)*.28+wakeDirection*.36)*force;
+ vec3 tipOffset=brushForce(p)*.009*u*u;
+ p+=tipOffset*.8/max(.8,length(tipOffset));
  vec4 view=modelViewMatrix*vec4(p,1.);gl_Position=projectionMatrix*view;
  taper=1.-u*.85;gl_PointSize=clamp((5.2+strand.w*3.)*hairPixelRatio/-view.z,.7,2.3*hairPixelRatio)*(.65+.35*taper);
  hairLight=(.38+strand.w*.36)*(.42+.58*taper);hairHighlight=highlight;
@@ -97,7 +95,8 @@ export function createHair(scene:THREE.Scene,anatomy:Anatomy,sharedUniforms:Reco
  for(let i=0;i<anatomy.tailGuide.length/3;i++)data.set(anatomy.tailGuide.subarray(i*3,i*3+3),i*4);
  const atlas=new THREE.DataTexture(data,anatomy.guideCount,anatomy.mesh.frameCount,THREE.RGBAFormat,THREE.FloatType);
  atlas.needsUpdate=true;atlas.minFilter=atlas.magFilter=THREE.NearestFilter;
- const uniforms={...sharedUniforms,hairAtlas:{value:atlas},guideCount:{value:anatomy.guideCount},hairFrames:{value:anatomy.mesh.frameCount},cycleSeconds:{value:anatomy.mesh.cycleSeconds},hairTime:{value:0},hairPixelRatio:{value:1},
+ const brushDefaults={brushStart:{value:Array.from({length:8},()=>new THREE.Vector4())},brushEnd:{value:Array.from({length:8},()=>new THREE.Vector4())},brushDirection:{value:Array.from({length:8},()=>new THREE.Vector4())},brushView:{value:new THREE.Vector3(0,0,-1)},brushCount:{value:0}};
+ const uniforms={...brushDefaults,...sharedUniforms,hairAtlas:{value:atlas},guideCount:{value:anatomy.guideCount},hairFrames:{value:anatomy.mesh.frameCount},cycleSeconds:{value:anatomy.mesh.cycleSeconds},hairTime:{value:0},hairPixelRatio:{value:1},
  hairRootWakeUv:sharedUniforms.hairRootWakeUv??{value:new THREE.Vector2(-1,-1)},wakeEnabled:sharedUniforms.wakeEnabled??{value:0},wakeTexture:sharedUniforms.wakeTexture??{value:atlas},
  wakePointer:sharedUniforms.wakePointer??{value:new THREE.Vector3(100,100,100)},wakeDirection:sharedUniforms.wakeDirection??{value:new THREE.Vector3()},wakeStrength:sharedUniforms.wakeStrength??{value:0}};
  const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.BufferAttribute(cloud.positions,3));geometry.setAttribute('strand',new THREE.BufferAttribute(cloud.strand,4));geometry.setAttribute('parameter',new THREE.BufferAttribute(cloud.parameter,1));geometry.setAttribute('highlight',new THREE.BufferAttribute(cloud.highlight,1));
