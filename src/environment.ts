@@ -16,8 +16,8 @@ export function createEnvironment(scene:THREE.Scene) {
  float nearHorse=exp(-pow(p.x/3.,2.)-pow(p.z/1.4,2.));
  p.y+=sin(p.x*1.6-time*7.+p.z*2.)*.075*nearHorse;
  vec4 view=modelViewMatrix*vec4(p,1.);gl_Position=projectionMatrix*view;
- gl_PointSize=clamp(10.*pixelRatio/-view.z,1.,2.*pixelRatio);
- alpha=(.07+.13*nearHorse)*exp(-length(p.xz)*.11)*step(.18,seed);}`,fragmentShader:dotFragment,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending});
+ gl_PointSize=clamp(22.*pixelRatio/-view.z,1.,2.5*pixelRatio);
+ alpha=(.25+.22*nearHorse)*exp(-length(p.xz)*.09)*step(.18,seed);}`,fragmentShader:dotFragment,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending});
  const grid=new THREE.Points(geometry,material);grid.frustumCulled=false;scene.add(grid);
  const trailCount=2600,trailPositions=new Float32Array(trailCount*3),trailSeeds=new Float32Array(trailCount);
  for(let i=0;i<trailCount;i++){trailPositions.set([random(),random(),random()],i*3);trailSeeds[i]=random();}
@@ -30,5 +30,18 @@ export function createEnvironment(scene:THREE.Scene) {
  gl_PointSize=clamp(13.*pixelRatio/-view.z,1.,3.*pixelRatio);
  alpha=pow(1.-life,2.)*.14*step(.45,position.x);}`,fragmentShader:dotFragment,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending});
  const trail=new THREE.Points(trailGeometry,trailMaterial);trail.frustumCulled=false;scene.add(trail);
- return {material,trailMaterial};
+ const impactCount=1200,impactPositions=new Float32Array(impactCount*3),impactSeeds=new Float32Array(impactCount);
+ for(let i=0;i<impactCount;i++){impactPositions.set([Math.floor(i/300),random(),random()],i*3);impactSeeds[i]=random();}
+ const impactGeometry=new THREE.BufferGeometry();impactGeometry.setAttribute('position',new THREE.BufferAttribute(impactPositions,3));impactGeometry.setAttribute('seed',new THREE.BufferAttribute(impactSeeds,1));
+ const impactMaterial=new THREE.ShaderMaterial({uniforms:{time:{value:0},pixelRatio:{value:1}},vertexShader:`
+ attribute float seed;uniform float time;uniform float pixelRatio;varying float alpha;
+ void main(){float leg=position.x;float phase=leg<.5?0.:leg<1.5?.11:leg<2.5?.48:.59;
+ float age=mod(time/.58+phase,1.)*.58;float life=age/.22;
+ float x=leg<1.5?1.6:-.20;float z=mod(leg,2.)<.5?.32:-.32;
+ vec3 p=vec3(x-age*(8.+seed*6.),.035+sin(position.y*3.14159)*age*2.-age*age*5.,z+(position.z-.5)*age*2.);
+ vec4 view=modelViewMatrix*vec4(p,1.);gl_Position=projectionMatrix*view;
+ gl_PointSize=clamp(18.*pixelRatio/-view.z,1.,3.*pixelRatio);
+ alpha=pow(max(0.,1.-life),2.)*.35;}`,fragmentShader:dotFragment,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending});
+ const impacts=new THREE.Points(impactGeometry,impactMaterial);impacts.frustumCulled=false;scene.add(impacts);
+ return {material,trailMaterial,impactMaterial};
 }

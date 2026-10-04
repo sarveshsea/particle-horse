@@ -6,7 +6,7 @@ import { qualityForFrame } from './dynamics';
 const art=createArtwork(),environment=createEnvironment(art.scene);
 const reduced=matchMedia('(prefers-reduced-motion: reduce)');
 let time=0,last=0,frame=0,total=0,samples=0,quality=1,raf=0,lost=false;
-const diagnostics={time:0,frames:0,quality:1,averageFrameMs:0,paused:false,contextLost:false,particles:76000};
+const diagnostics={time:0,frames:0,quality:1,averageFrameMs:0,paused:false,contextLost:false,particles:art.geometry.getAttribute('position').count};
 Object.defineProperty(window,'__ARTWORK',{value:diagnostics});
 function draw() {
  const pose=gait(time);
@@ -19,7 +19,7 @@ function draw() {
   for(let j=0;j<3;j++)art.matrices[2+i*3+j].premultiply(root);
  });
  art.material.uniforms.time.value=time;
- for(const material of [environment.material,environment.trailMaterial]){material.uniforms.time.value=time;material.uniforms.pixelRatio.value=art.renderer.getPixelRatio();}
+ for(const material of [environment.material,environment.trailMaterial,environment.impactMaterial]){material.uniforms.time.value=time;material.uniforms.pixelRatio.value=art.renderer.getPixelRatio();}
  art.renderer.render(art.scene,art.camera);
  diagnostics.time=time;diagnostics.frames++;
 }
@@ -28,7 +28,12 @@ function animate(now:number) {
  if(document.hidden||lost||reduced.matches)return;
  if(last){const dt=Math.min((now-last)/1000,.05);time+=dt;total+=now-last;samples++;}
  last=now;
- if(++frame%120===0&&samples){diagnostics.averageFrameMs=total/samples;quality=qualityForFrame(quality,total/samples);diagnostics.quality=quality;total=0;samples=0;}
+ if(++frame%90===0&&samples){diagnostics.averageFrameMs=total/samples;quality=qualityForFrame(quality,total/samples);diagnostics.quality=quality;
+  art.material.uniforms.density.value=quality;
+  diagnostics.particles=Math.floor(art.geometry.getAttribute('position').count*quality);
+  art.renderer.setPixelRatio(Math.min(devicePixelRatio,1.75)*Math.sqrt(quality));
+  art.renderer.setSize(innerWidth,innerHeight);
+  art.material.uniforms.pixelRatio.value=art.renderer.getPixelRatio();total=0;samples=0;}
  draw();raf=requestAnimationFrame(animate);
 }
 function restart() {

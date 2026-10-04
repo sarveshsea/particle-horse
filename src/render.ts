@@ -8,8 +8,10 @@ attribute float seed;
 uniform mat4 bones[14];
 uniform float time;
 uniform float pixelRatio;
+uniform float density;
 varying float light;
 void main() {
+ if(seed>density){gl_Position=vec4(2.,2.,2.,1.);gl_PointSize=0.;light=0.;return;}
  vec3 p = position;
  if (kind > .5 && kind < 1.5) {
   float strand = seed;
@@ -43,12 +45,12 @@ export function createArtwork() {
  const scene=new THREE.Scene();
  const camera=new THREE.PerspectiveCamera(34,1,.1,120);
  camera.position.set(5.3,3.0,10.9); camera.lookAt(0,2.05,0);
- const cloud=generateHorse(76000);
+ const cloud=generateHorse(innerWidth<600?36000:76000);
  const geometry=new THREE.BufferGeometry();
  geometry.setAttribute('position',new THREE.BufferAttribute(cloud.positions,3));
  for(const [name,data] of Object.entries({bone:cloud.bones,kind:cloud.kinds,brightness:cloud.brightness,seed:cloud.seeds})) geometry.setAttribute(name,new THREE.BufferAttribute(data,1));
  const matrices=Array.from({length:14},()=>new THREE.Matrix4());
- const material=new THREE.ShaderMaterial({vertexShader,fragmentShader,uniforms:{bones:{value:matrices},time:{value:0},pixelRatio:{value:1}},transparent:true,depthWrite:false,blending:THREE.AdditiveBlending});
+ const material=new THREE.ShaderMaterial({vertexShader,fragmentShader,uniforms:{bones:{value:matrices},time:{value:0},pixelRatio:{value:1},density:{value:1}},transparent:true,depthWrite:false,blending:THREE.AdditiveBlending});
  const horse=new THREE.Points(geometry,material); horse.frustumCulled=false; scene.add(horse);
  const axis=new THREE.Vector3(0,1,0);
  function segment(index:number,start:THREE.Vector3,end:THREE.Vector3) {
