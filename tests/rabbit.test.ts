@@ -18,3 +18,4 @@ describe('rabbit meadow integration',()=>{
 describe('rabbit anatomical depth',()=>{
  it('surface normals are deterministic finite unit vectors for all body parts',()=>{const a=generateRabbit(1600,29),b=generateRabbit(1600,29);expect(a.normals).toEqual(b.normals);expect(a.normals.length).toBe(4800);for(let i=0;i<1600;i++)expect(Math.hypot(...a.normals.subarray(i*3,i*3+3))).toBeCloseTo(1,5);});
 });
+it('reduced-motion rabbits remain within portrait horse framing',()=>{const r=createRabbits(new THREE.Scene(),true);r.update(0,1,true);expect(r.diagnostics().positions.some(p=>Math.abs(p.x)<1.8)).toBe(true);r.dispose();});
