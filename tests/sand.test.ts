@@ -27,3 +27,11 @@ test.each([0, -1, NaN, 1.5, 150001])(
   "rejects invalid sand population %s",
   (count) => expect(() => generateSand(count, 1)).toThrow(),
 );
+
+test('three seeded depth bands preserve near-ground detail and distinct extents',async()=>{
+ const {generateSandLayer}=await import('../src/sand');
+ for(const layer of ['near','middle','far'] as const){
+  const cloud=generateSandLayer(1000,layer,17);expect(cloud).toEqual(generateSandLayer(1000,layer,17));expect(cloud.positions.every(Number.isFinite)).toBe(true);
+  for(let i=0;i<1000;i++){const z=Math.abs(cloud.positions[i*3+2]);if(layer==='near')expect(z).toBeLessThanOrEqual(2.1);else if(layer==='middle'){expect(z).toBeGreaterThanOrEqual(2.1);expect(z).toBeLessThanOrEqual(6.5);}else{expect(z).toBeGreaterThanOrEqual(6.5);expect(z).toBeLessThanOrEqual(11);}expect(cloud.positions[i*3+1]).toBeLessThan(0);}
+ }
+});
