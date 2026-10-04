@@ -13,12 +13,13 @@ test('refinement preserves source body and correspondence without mutating its a
  expect(source.positions).toEqual(before);
  expect(result.mesh.vertexCount).toBe(source.vertexCount);
  expect(result.mesh.positions.every(Number.isFinite)).toBe(true);
- let changed=0;
+ let changed=0, bodyIdentical=true;
  for(let f=0;f<source.frameCount;f++)for(let v=0;v<source.vertexCount;v++){
   const offset=(f*source.vertexCount+v)*3;
-  if(result.faceWeights[v]===0)expect(result.mesh.positions.slice(offset,offset+3)).toEqual(before.slice(offset,offset+3));
+  if(result.faceWeights[v]===0){for(let axis=0;axis<3;axis++)bodyIdentical &&= result.mesh.positions[offset+axis]===before[offset+axis];}
   else if(result.mesh.positions[offset+2]!==before[offset+2])changed++;
  }
+ expect(bodyIdentical).toBe(true);
  expect(changed).toBeGreaterThan(1000);
 });
 test('tail surface is excluded from both particle and depth topology',()=>{

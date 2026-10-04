@@ -27,12 +27,15 @@ test('hair renderer shares force uniforms, adapts complete strands, and releases
  const anatomy={...guide,faceWeights:new Float32Array(),featureWeights:new Float32Array(),tailMask:new Uint8Array(),landmarks:{eyes:[4279,5441],nostrils:[3333,4547],jaws:[3543,4758],ears:[3876,5088]},mesh:{...guide.mesh,vertexCount:3,triangleCount:1,positions:new Float32Array(18),topology:new Uint32Array([0,1,2])}} as Parameters<typeof createHair>[1];
  const renderer=createHair(scene,anatomy,shared);
  expect(scene.children).toContain(renderer.points);
+ expect(renderer.lines.geometry.getIndex()!.count).toBe(640*47*2);
+ expect(renderer.lines.material.uniforms.hairTime).toBe(renderer.material.uniforms.hairTime);
+ expect(renderer.lines.material.uniforms.hairAtlas).toBe(renderer.material.uniforms.hairAtlas);
  renderer.update(.2,{point:new THREE.Vector3(1,2,3),direction:new THREE.Vector3(1,0,0),strength:.8},1.5);
  expect(renderer.material.uniforms.wakePointer).toBe(shared.wakePointer);
  expect(shared.wakePointer.value.x).toBe(1);
  expect(renderer.material.uniforms.hairTime.value).toBe(.2);
  renderer.update(NaN,undefined,NaN);expect(renderer.material.uniforms.hairTime.value).toBe(0);
- renderer.setQuality(.5);expect(renderer.geometry.drawRange.count).toBe(320*48);
+ renderer.setQuality(.5);expect(renderer.geometry.drawRange.count).toBe(320*48);expect(renderer.lines.geometry.drawRange.count).toBe(320*47*2);
  renderer.setQuality(NaN);expect(renderer.geometry.drawRange.count).toBe(640*48);
  renderer.dispose();expect(scene.children).toHaveLength(0);
 });
