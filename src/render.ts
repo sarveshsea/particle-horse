@@ -16,6 +16,8 @@ vec3 animated(float index){return mix(vertexAt(index,frame.x),vertexAt(index,fra
 const vertexShader = `
 attribute vec3 triangle;
 attribute vec2 barycentric;
+attribute vec3 normalCoefficients;
+attribute vec3 restPoint;
 attribute float seed;
 attribute float brightness;
 uniform float density;
@@ -27,16 +29,28 @@ void main(){
  if(seed>density){gl_Position=vec4(2.,2.,2.,1.);gl_PointSize=0.;light=0.;opacity=0.;return;}
  vec3 a=animated(triangle.x),b=animated(triangle.y),c=animated(triangle.z);
  vec3 p=a*barycentric.x+b*barycentric.y+c*(1.-barycentric.x-barycentric.y);
- vec3 n=cross(b-a,c-a);vec3 normal=n*inversesqrt(max(dot(n,n),1e-10));
+ vec3 n=cross(b-a,c-a);vec3 face=n*inversesqrt(max(dot(n,n),1e-10));
+ vec3 edge=b-a;vec3 tangent=edge*inversesqrt(max(dot(edge,edge),1e-10));
+ vec3 blended=tangent*normalCoefficients.x+cross(face,tangent)*normalCoefficients.y+face*normalCoefficients.z;
+ vec3 normal=blended*inversesqrt(max(dot(blended,blended),1e-10));
  vec4 view=modelViewMatrix*vec4(p+normal*.002,1.);
  gl_Position=projectionMatrix*view;
  gl_PointSize=clamp((7.8+seed*6.)*pixelRatio/-view.z,.8,3.*pixelRatio);
- float diffuse=max(0.,dot(normal,normalize(vec3(-.3,.8,1.))));
+ float diffuse=max(0.,dot(normal,normalize(vec3(-.25,.65,1.))))*.8+max(0.,dot(normal,normalize(vec3(1.,.3,.2))))*.2;
+ float bodyPhase=(restPoint.y+.055*sin(restPoint.x*4.)+.13*restPoint.z)*190.;
+ float neckPhase=(restPoint.x*.78+restPoint.y*.52+restPoint.z*.14)*205.;
+ float limbPhase=(restPoint.x*.8+restPoint.z*.6)*230.;
+ float phase=mix(limbPhase,bodyPhase,smoothstep(.45,.90,restPoint.y));
+ float hindPhase=(restPoint.y*.72+restPoint.x*.40+.15*restPoint.z)*190.;
+ phase=mix(phase,hindPhase,1.-smoothstep(-.75,-.15,restPoint.x));
+ phase=mix(phase,neckPhase,smoothstep(.18,.55,restPoint.x)*smoothstep(1.1,1.65,restPoint.y));
+ float fiber=pow(.5+.5*sin(phase),8.);
+ float muscleMask=smoothstep(-1.3,-.9,restPoint.x);
  float rim=pow(1.-abs(dot(normal,normalize(cameraPosition-p))),2.);
- light=brightness*(.28+diffuse*.62+rim*.38);
+ light=brightness*(.22+diffuse*.90+rim*.22)*mix(1.,.72+fiber*.40,muscleMask);
  opacity=.68;
 }`;
-const fragmentShader = `varying float light;varying float opacity;void main(){float r=length(gl_PointCoord-.5)*2.;if(r>1.)discard;gl_FragColor=vec4(vec3(light*.94,light*.98,light),exp(-r*r*3.4)*opacity);}`;
+const fragmentShader = `varying float light;varying float opacity;void main(){float r=length(gl_PointCoord-.5)*2.;if(r>1.)discard;gl_FragColor=vec4(vec3(light),exp(-r*r*3.4)*opacity);}`;
 async function loadEquine() {
   const root = import.meta.env.BASE_URL + "equine/";
   const responses = await Promise.all(
@@ -103,6 +117,14 @@ export async function createArtwork() {
     new THREE.BufferAttribute(cloud.weights, 2),
   );
   geometry.setAttribute("seed", new THREE.BufferAttribute(cloud.seeds, 1));
+  geometry.setAttribute(
+    "normalCoefficients",
+    new THREE.BufferAttribute(cloud.normalCoefficients, 3),
+  );
+  geometry.setAttribute(
+    "restPoint",
+    new THREE.BufferAttribute(cloud.restPoints, 3),
+  );
   geometry.setAttribute(
     "brightness",
     new THREE.BufferAttribute(cloud.brightness, 1),

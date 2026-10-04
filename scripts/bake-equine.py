@@ -54,7 +54,7 @@ def bake(source, output, scale=2.6):
     metadata = {
         'vertexCount': vertex_count, 'frameCount': len(meshes),
         'triangleCount': len(topology) // 3, 'scale': scale,
-        'source': SOURCE, 'cycleSeconds': 0.62, 'bounds': bounds,
+        'source': SOURCE, 'cycleSeconds': 0.9, 'bounds': bounds,
         'format': 'Little-endian float32 XYZ, frame-major; little-endian uint32 triangle indices',
         'groundOffset': -ground * scale,
         'sourceFrames': [p.name for p in paths],

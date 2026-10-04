@@ -1,5 +1,5 @@
 import { createArtwork } from "./render";
-import { createEnvironment } from "./environment";
+import { createEnvironment, GROUND_SPEED } from "./environment";
 import { qualityForFrame } from "./dynamics";
 async function start() {
   const art = await createArtwork(),
@@ -33,7 +33,7 @@ async function start() {
     }
     art.renderer.render(art.scene, art.camera);
     diagnostics.time = time;
-    diagnostics.groundDistance = time * 12;
+    diagnostics.groundDistance = time * GROUND_SPEED;
     diagnostics.frames++;
   }
   function animate(now: number) {

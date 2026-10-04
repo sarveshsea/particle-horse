@@ -5,7 +5,7 @@ export default defineConfig({
     include: ["tests/**/*.test.ts"],
     coverage: {
       provider: "v8",
-      include: ["src/equine.ts", "src/dynamics.ts"],
+      include: ["src/equine.ts", "src/dynamics.ts", "src/sand.ts"],
       thresholds: { statements: 80, branches: 80, functions: 80, lines: 80 },
     },
   },

@@ -58,31 +58,88 @@ export function frameAt(
   const a = Math.floor(phase);
   return { a, b: (a + 1) % frameCount, mix: phase - a };
 }
+type Vector = readonly [number, number, number];
+const vectorAt = (values: Float32Array, index: number): Vector => [
+  values[index * 3],
+  values[index * 3 + 1],
+  values[index * 3 + 2],
+];
+const dot = (a: Vector, b: Vector) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+const subtract = (a: Vector, b: Vector): Vector => [
+  a[0] - b[0],
+  a[1] - b[1],
+  a[2] - b[2],
+];
+const cross = (a: Vector, b: Vector): Vector => [
+  a[1] * b[2] - a[2] * b[1],
+  a[2] * b[0] - a[0] * b[2],
+  a[0] * b[1] - a[1] * b[0],
+];
+const normalize = (v: Vector): Vector => {
+  const length = Math.max(Math.hypot(...v), 1e-10);
+  return [v[0] / length, v[1] / length, v[2] / length];
+};
+function surfaceDistribution(mesh: Equine) {
+  const cumulative = new Float64Array(mesh.triangleCount),
+    normals = new Float32Array(mesh.vertexCount * 3);
+  let total = 0;
+  for (let i = 0; i < mesh.triangleCount; i++) {
+    const ids = mesh.topology.subarray(i * 3, i * 3 + 3);
+    const a = vectorAt(mesh.positions, ids[0]),
+      b = vectorAt(mesh.positions, ids[1]),
+      c = vectorAt(mesh.positions, ids[2]);
+    const n = cross(subtract(b, a), subtract(c, a));
+    total += Math.hypot(...n) / 2;
+    cumulative[i] = total;
+    for (const index of ids)
+      for (let axis = 0; axis < 3; axis++) normals[index * 3 + axis] += n[axis];
+  }
+  if (total <= 0) throw new RangeError("Source surface has zero area");
+  for (let i = 0; i < mesh.vertexCount; i++)
+    normals.set(normalize(vectorAt(normals, i)), i * 3);
+  return { cumulative, normals, total };
+}
+function attachedCoordinates(
+  mesh: Equine,
+  ids: Uint32Array,
+  u: number,
+  v: number,
+  normals: Float32Array,
+) {
+  const a = vectorAt(mesh.positions, ids[0]),
+    b = vectorAt(mesh.positions, ids[1]),
+    c = vectorAt(mesh.positions, ids[2]);
+  const tangent = normalize(subtract(b, a)),
+    normal = normalize(cross(subtract(b, a), subtract(c, a))),
+    bitangent = cross(normal, tangent);
+  const na = vectorAt(normals, ids[0]),
+    nb = vectorAt(normals, ids[1]),
+    nc = vectorAt(normals, ids[2]),
+    w = 1 - u - v;
+  const smooth = normalize([
+    na[0] * u + nb[0] * v + nc[0] * w,
+    na[1] * u + nb[1] * v + nc[1] * w,
+    na[2] * u + nb[2] * v + nc[2] * w,
+  ]);
+  return {
+    rest: [
+      a[0] * u + b[0] * v + c[0] * w,
+      a[1] * u + b[1] * v + c[1] * w,
+      a[2] * u + b[2] * v + c[2] * w,
+    ],
+    normal: [dot(smooth, tangent), dot(smooth, bitangent), dot(smooth, normal)],
+  };
+}
 export function sampleSurface(mesh: Equine, count: number, seed = 71) {
   if (!Number.isInteger(count) || count < 1 || count > 200000)
     throw new RangeError("Particle count must be an integer from 1 to 200000");
-  const cumulative = new Float64Array(mesh.triangleCount);
-  let total = 0;
-  for (let i = 0; i < mesh.triangleCount; i++) {
-    const a = mesh.topology[i * 3] * 3,
-      b = mesh.topology[i * 3 + 1] * 3,
-      c = mesh.topology[i * 3 + 2] * 3,
-      p = mesh.positions;
-    const ux = p[b] - p[a],
-      uy = p[b + 1] - p[a + 1],
-      uz = p[b + 2] - p[a + 2],
-      vx = p[c] - p[a],
-      vy = p[c + 1] - p[a + 1],
-      vz = p[c + 2] - p[a + 2];
-    total +=
-      Math.hypot(uy * vz - uz * vy, uz * vx - ux * vz, ux * vy - uy * vx) / 2;
-    cumulative[i] = total;
-  }
-  if (total <= 0) throw new RangeError("Source surface has zero area");
+  const { cumulative, normals, total } = surfaceDistribution(mesh);
   const triangles = new Float32Array(count * 3),
     weights = new Float32Array(count * 2),
     seeds = new Float32Array(count),
-    brightness = new Float32Array(count);
+    brightness = new Float32Array(count),
+    normalCoefficients = new Float32Array(count * 3),
+    restPoints = new Float32Array(count * 3);
   const random = randomSource(seed);
   for (let i = 0; i < count; i++) {
     const area = random() * total;
@@ -93,12 +150,25 @@ export function sampleSurface(mesh: Equine, count: number, seed = 71) {
       if (cumulative[mid] < area) low = mid + 1;
       else high = mid;
     }
-    triangles.set(mesh.topology.subarray(low * 3, low * 3 + 3), i * 3);
+    const ids = mesh.topology.subarray(low * 3, low * 3 + 3);
+    triangles.set(ids, i * 3);
     const root = Math.sqrt(random()),
-      v = random();
-    weights.set([1 - root, root * v], i * 2);
+      v = random(),
+      u = 1 - root,
+      w = root * v;
+    weights.set([u, w], i * 2);
     seeds[i] = random();
     brightness[i] = 0.65 + random() * 0.35;
+    const coordinates = attachedCoordinates(mesh, ids, u, w, normals);
+    restPoints.set(coordinates.rest, i * 3);
+    normalCoefficients.set(coordinates.normal, i * 3);
   }
-  return { triangles, weights, seeds, brightness };
+  return {
+    triangles,
+    weights,
+    seeds,
+    brightness,
+    normalCoefficients,
+    restPoints,
+  };
 }

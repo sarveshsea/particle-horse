@@ -167,7 +167,11 @@ test("ground visibly travels backward beneath the horse", async ({ page }) => {
   await page.waitForTimeout(250);
   const after = PNG.sync.read(await page.screenshot());
   const b = await stats(page);
-  expect(b.groundDistance - a.groundDistance).toBeGreaterThan(2);
+  expect(b.groundDistance - a.groundDistance).toBeGreaterThan(1);
+  expect((b.groundDistance - a.groundDistance) / (b.time - a.time)).toBeCloseTo(
+    6,
+    5,
+  );
   let changed = 0;
   for (let y = 750; y < 1000; y++)
     for (let x = 0; x < 1440; x++) {

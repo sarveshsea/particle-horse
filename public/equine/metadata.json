@@ -4,7 +4,7 @@
   "triangleCount": 16843,
   "scale": 2.6,
   "source": "https://people.csail.mit.edu/sumner/research/deftransfer/data/horse-gallop.zip",
-  "cycleSeconds": 0.62,
+  "cycleSeconds": 0.9,
   "bounds": {
     "min": [
       -2.0782059999999998,
