@@ -1,0 +1,9 @@
+import { describe,it,expect } from 'vitest';
+import { brushSegment, appendBrush, brushForce, rayTriangleDistance, springStep } from '../src/brush';
+describe('depth sculptural brush',()=>{
+ it('keeps an immutable eight-segment continuous history',()=>{let history: ReturnType<typeof appendBrush>=[];for(let i=0;i<12;i++){const previous=history;history=appendBrush(history,brushSegment([i,0,0],[i+1,0,0],2,i));expect(previous).not.toBe(history);}expect(history).toHaveLength(8);expect(history[0].start[0]).toBe(4);});
+ it('varies radius within the chosen range and rejects invalid coordinates',()=>{expect(brushSegment([0,0,0],[0,0,0],0,0).radius).toBe(.35);expect(brushSegment([0,0,0],[1,0,0],99,0).radius).toBe(.65);expect(()=>brushSegment([NaN,0,0],[0,0,0],1,0)).toThrow();});
+ it('selects real front triangle depth and misses outside surface',()=>{expect(rayTriangleDistance([0,0,3],[0,0,-1],[-1,-1,0],[1,-1,0],[0,1,0])).toBeCloseTo(3);expect(rayTriangleDistance([5,0,3],[0,0,-1],[-1,-1,0],[1,-1,0],[0,1,0])).toBeNull();expect(rayTriangleDistance([0,0,3],[1,0,0],[-1,-1,0],[1,-1,0],[0,1,0])).toBeNull();});
+ it('pulls along the whole sweep with finite bounded forces and weaker depth',()=>{const segment=brushSegment([-1,0,0],[1,0,0],4,0);const front=brushForce([0,0,0],[segment],0,[0,0,-1]);const back=brushForce([0,0,-.3],[segment],0,[0,0,-1]);expect(front.every(Number.isFinite)).toBe(true);expect(Math.hypot(...front)).toBeGreaterThan(Math.hypot(...back));expect(Math.hypot(...front)).toBeLessThanOrEqual(100);expect(brushForce([0,0,0],[segment],2,[0,0,-1])).toEqual([0,0,0]);});
+ it('caps energy and restores within two seconds with timestep continuity',()=>{let state={position:[.8,0,0] as const,velocity:[0,0,0] as const};for(let i=0;i<120;i++)state=springStep(state,[0,0,0],1/60);expect(Math.hypot(...state.position)).toBeLessThan(.003);expect(springStep({position:[0,0,0],velocity:[100,0,0]},[999,0,0],.05).position[0]).toBeLessThanOrEqual(.8);});
+});
