@@ -1,0 +1,8 @@
+import {describe,it,expect} from 'vitest';
+import {materialHeight,worldHeight,terrainNormal,horseTerrainPose,transformTerrainPoint} from '../src/terrain';
+describe('rolling material terrain',()=>{
+ it('is deterministic periodic and bounded with gentle finite slopes',()=>{for(let x=-40;x<40;x+=.41)for(let z=-10;z<10;z+=.77){const h=materialHeight(x,z);expect(h).toBe(materialHeight(x,z));expect(materialHeight(x+36,z)).toBeCloseTo(h,10);expect(Math.abs(h)).toBeLessThan(.35);const n=terrainNormal(x,z);expect(Math.hypot(n.x,n.y,n.z)).toBeCloseTo(1,10);expect(Math.hypot(n.x,n.z)/n.y).toBeLessThan(.14);}});
+ it('advects one continuous height field without wrap jumps',()=>{for(let t=0;t<6;t+=.1){expect(worldHeight(2,1,t)).toBeCloseTo(materialHeight(2+6*t,1),10);expect(worldHeight(2,1,t+6)).toBeCloseTo(worldHeight(2,1,t),10);expect(Math.abs(worldHeight(2,1,t+.0001)-worldHeight(2,1,t))).toBeLessThan(.001);}});
+ it('aligns horse rigid pose to centre slope and preserves point distances',()=>{for(let t=0;t<6;t+=.2){const pose=horseTerrainPose(t), root=transformTerrainPoint({x:0,y:0,z:0},t), a=transformTerrainPoint({x:1,y:2,z:.3},t);expect(root.y).toBeCloseTo(worldHeight(0,0,t),10);expect(Math.abs(pose.pitch)).toBeLessThan(.14);expect(Math.hypot(a.x-root.x,a.y-root.y,a.z-root.z)).toBeCloseTo(Math.hypot(1,2,.3),10);expect((worldHeight(.001,0,t)-worldHeight(-.001,0,t))/.002).toBeCloseTo(Math.tan(pose.pitch),5);}});
+ it('rejects nonfinite public inputs',()=>{expect(()=>materialHeight(NaN,0)).toThrow();expect(()=>worldHeight(0,0,Infinity)).toThrow();expect(()=>horseTerrainPose(NaN)).toThrow();expect(()=>transformTerrainPoint({x:NaN,y:0,z:0},0)).toThrow();});
+});
