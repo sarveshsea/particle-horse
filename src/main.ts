@@ -28,6 +28,11 @@ async function start() {
     particles: art.geometry.getAttribute("position").count,
     groundDistance: 0,
     impacts: 0,
+    floorLayers: environment.floorLayers,
+    strikeCount: 0,
+    activeSpray: 0,
+    inspectContacts: () => environment.contactEvents,
+    inspectFloor: () => environment.layerCounts,
     wakeStrength: 0,
     cameraYaw: 0,
     dragging: false,
@@ -45,6 +50,8 @@ async function start() {
     environment.setPointer(pointer.point, pointer.strength);
     environment.update(time, art.mesh);
     diagnostics.impacts = environment.impactCount;
+    diagnostics.strikeCount = environment.strikeCount;
+    diagnostics.activeSpray = environment.activeSpray;
     diagnostics.wakeStrength = reduced.matches ? 0 : art.wake.uniforms.wakeStrength.value;
     diagnostics.cameraYaw = Math.atan2(art.camera.position.x + .2, art.camera.position.z);
     diagnostics.dragging = cameraMotion.dragging;

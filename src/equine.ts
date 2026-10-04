@@ -79,7 +79,8 @@ const normalize = (v: Vector): Vector => {
   const length = Math.max(Math.hypot(...v), 1e-10);
   return [v[0] / length, v[1] / length, v[2] / length];
 };
-function surfaceDistribution(mesh: Equine) {
+function surfaceDistribution(mesh: Equine, density?: Float32Array) {
+  if (density && (density.length !== mesh.vertexCount || !density.every(value => Number.isFinite(value) && value >= 0))) throw new RangeError("Invalid surface density");
   const cumulative = new Float64Array(mesh.triangleCount),
     normals = new Float32Array(mesh.vertexCount * 3);
   let total = 0;
@@ -89,7 +90,8 @@ function surfaceDistribution(mesh: Equine) {
       b = vectorAt(mesh.positions, ids[1]),
       c = vectorAt(mesh.positions, ids[2]);
     const n = cross(subtract(b, a), subtract(c, a));
-    total += Math.hypot(...n) / 2;
+    const importance = density ? (density[ids[0]] + density[ids[1]] + density[ids[2]]) / 3 : 1;
+    total += Math.hypot(...n) / 2 * importance;
     cumulative[i] = total;
     for (const index of ids)
       for (let axis = 0; axis < 3; axis++) normals[index * 3 + axis] += n[axis];
@@ -130,10 +132,10 @@ function attachedCoordinates(
     normal: [dot(smooth, tangent), dot(smooth, bitangent), dot(smooth, normal)],
   };
 }
-export function sampleSurface(mesh: Equine, count: number, seed = 71) {
+export function sampleSurface(mesh: Equine, count: number, seed = 71, density?: Float32Array) {
   if (!Number.isInteger(count) || count < 1 || count > 200000)
     throw new RangeError("Particle count must be an integer from 1 to 200000");
-  const { cumulative, normals, total } = surfaceDistribution(mesh);
+  const { cumulative, normals, total } = surfaceDistribution(mesh, density);
   const triangles = new Float32Array(count * 3),
     weights = new Float32Array(count * 2),
     seeds = new Float32Array(count),

@@ -12,3 +12,8 @@ export function qualityForFrame(
 export function qualityWindowReady(frames: number, elapsedMs: number): boolean {
  return frames >= 15 && (frames >= 90 || elapsedMs >= 1500);
 }
+
+export function drawingRatioScale(quality: number): number {
+ if (!Number.isFinite(quality)) throw new RangeError('Quality must be finite');
+ return Math.sqrt(Math.max(.72, Math.min(1, quality)));
+}

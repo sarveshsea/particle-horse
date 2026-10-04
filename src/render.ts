@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { drawingRatioScale } from "./dynamics";
 import { createParticleWake, wakeShader } from "./particle-wake";
 import {
   decodeEquine,
@@ -193,7 +194,7 @@ export async function createArtwork() {
   scene.add(depth);
   function resize() {
     renderer.setPixelRatio(
-      Math.min(devicePixelRatio, 1.75) * Math.sqrt(uniforms.density.value),
+      Math.min(devicePixelRatio, 1.75) * drawingRatioScale(uniforms.density.value),
     );
     renderer.setSize(innerWidth, innerHeight);
     uniforms.pixelRatio.value = renderer.getPixelRatio();

@@ -38,3 +38,13 @@ Raw observations: [performance.json](performance.json). Motion preview: [preview
 ![Gait 3](gallop-3.png)
 ![Gait 4](gallop-4.png)
 ![Portrait](portrait.png)
+
+## Checkpoint 9 — sculptural sand
+
+Three seeded depth bands replace the uniform floor. Two thirds of grains cluster into small patches; shallow coherent terrain contours remain below the calibrated hoof corridor. The vertex shader preserves these sampled heights rather than flattening them. Foreground grains retain sharp cores and stronger perspective size.
+
+Four immutable contact events per authored stride drive bounded coarse eruptions, softer dust, propulsion pressure, and fading advected tracks. CPU and GPU spray trajectories share ascent, gravity, landing and ground travel. Developer diagnostics expose the layers, strike count and active spray; the canvas stays wordless.
+
+77 unit/integration tests pass with 98.79% statements, 95.50% branches and 100% lines. Sand and force logic have 100% coverage. Production startup, responsive framing, reduced motion, hidden tabs, context recovery, adaptive quality and ground-travel browser checks pass. The checkpoint includes tested face, hair and audio foundations for subsequent integration.
+
+![Layered sand checkpoint](sand-9.png)

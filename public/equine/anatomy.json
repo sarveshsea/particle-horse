@@ -1,0 +1,90 @@
+{
+  "description": "Artist-authored localized refinement of credited Poser/DAZ horse; not a scan or measured animal.",
+  "source": "https://people.csail.mit.edu/sumner/research/deftransfer/data/horse-gallop.zip",
+  "sourceSha256": "9083a287cc9d20a13476a6b963242ed46c13c06559c930d23a0cf2acb9576258",
+  "sourceVertexCount": 8431,
+  "sourceFrameCount": 24,
+  "landmarkVertexIds": {
+    "eyes": [
+      4279,
+      5441
+    ],
+    "nostrils": [
+      3333,
+      4547
+    ],
+    "jaws": [
+      3543,
+      4758
+    ],
+    "ears": [
+      3876,
+      5088
+    ]
+  },
+  "tailMaskInclusive": [
+    7562,
+    8429
+  ],
+  "tailVertexCount": 868,
+  "preservedRootCapVertex": 8430,
+  "tailGuideCount": 9,
+  "correctionsRenderingUnits": {
+    "eyeRecess": 0.009,
+    "nostrilRecess": 0.01,
+    "muzzleNarrowing": 0.003,
+    "jawDefinition": 0.004,
+    "earRidge": 0.002
+  },
+  "implementation": "src/anatomy.ts; guide centroids use fixed first-pose length bins, same vertex IDs in every frame.",
+  "restLandmarkPositions": {
+    "eyes": [
+      [
+        0.8844783902168274,
+        1.9477325677871704,
+        0.09366811811923981
+      ],
+      [
+        0.8772686123847961,
+        1.9522513151168823,
+        -0.09495434165000916
+      ]
+    ],
+    "nostrils": [
+      [
+        1.0259157419204712,
+        1.620348334312439,
+        0.05167708173394203
+      ],
+      [
+        1.0265189409255981,
+        1.6186193227767944,
+        -0.04913479834794998
+      ]
+    ],
+    "jaws": [
+      [
+        0.8822788000106812,
+        1.6501755714416504,
+        0.05805123969912529
+      ],
+      [
+        0.8841351866722107,
+        1.6580873727798462,
+        -0.059757620096206665
+      ]
+    ],
+    "ears": [
+      [
+        0.8404734134674072,
+        2.1253464221954346,
+        0.08543340116739273
+      ],
+      [
+        0.830731213092804,
+        2.131588935852051,
+        -0.08414146304130554
+      ]
+    ]
+  }
+}
