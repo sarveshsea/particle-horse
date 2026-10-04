@@ -1,6 +1,6 @@
 import { describe,it,expect } from 'vitest';
 import { generateMeadow, meadowPoint, meadowBend } from '../src/meadow';
-import { terrainHeight } from '../src/sand';
+import { materialHeight } from '../src/terrain';
 const strike={id:'hoof-0-stride-0',hoof:0,born:0,x:0,y:0,z:0,strength:1,contactDuration:.18} as const;
 describe('particle meadow',()=>{
  it('seeds grass, five-petal flowers and branching shrubs deterministically',()=>{
@@ -8,7 +8,7 @@ describe('particle meadow',()=>{
   expect(a).toEqual(b);expect(a.grass.length).toBe(80);expect(a.flowers.length).toBe(12);expect(a.bushes.length).toBe(6);
   expect(a.flowers.every(f=>f.petals.length===5)).toBe(true);
   expect(a.bushes.every(b=>b.branches.length>=4)).toBe(true);
-  for(const root of [...a.grass,...a.flowers,...a.bushes])expect(root.y).toBeCloseTo(terrainHeight(root.x,root.z),6);
+  for(const root of [...a.grass,...a.flowers,...a.bushes])expect(root.y).toBeCloseTo(materialHeight(root.x,root.z),6);
  });
  it('limits populations and rejects non-finite geometry',()=>{
   expect(()=>generateMeadow(-1,2,1)).toThrow();expect(()=>generateMeadow(20001,1,1)).toThrow();
@@ -17,7 +17,7 @@ describe('particle meadow',()=>{
  });
  it('scrolls roots with terrain without changing the source',()=>{
   const source=generateMeadow(1,1,1).grass[0],before={...source};
-  const at=meadowPoint(source.x,source.z,.25);expect(at.x).toBeCloseTo(source.x-1.5);expect(at.y).toBeCloseTo(terrainHeight(source.x,source.z));expect(source).toEqual(before);
+  const at=meadowPoint(source.x,source.z,.25);expect(at.x).toBeCloseTo(source.x-1.5);expect(at.y).toBeCloseTo(materialHeight(source.x,source.z));expect(source).toEqual(before);
   const loop=meadowPoint(source.x,source.z,6);expect(loop.x).toBeCloseTo(source.x);
  });
  it('bends locally around advected hoof strikes and recovers',()=>{

@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import type { WakePointer } from './particle-wake';
 import { appendBrush,brushSegment,bridgeBrush,type BrushHit,type BrushSegment,type Vec3 } from './brush';
 import { frameAt,type Equine } from './equine';
-import { terrainHeight } from './sand';
+import { transformTerrainVertices,worldHeight } from './terrain';
 
 export function createInteraction(camera:THREE.PerspectiveCamera,canvas:HTMLCanvasElement,mesh:Equine){
  let cursor:Readonly<{x:number;y:number;at:number;speed:number}>|undefined;
@@ -11,7 +11,7 @@ export function createInteraction(camera:THREE.PerspectiveCamera,canvas:HTMLCanv
  const ray=new THREE.Raycaster(),view=new THREE.Vector3();
  const animated=new Float32Array(mesh.vertexCount*3);
  const a=new THREE.Vector3(),b=new THREE.Vector3(),c=new THREE.Vector3(),intersection=new THREE.Vector3();
- const bounds=new THREE.Box3(new THREE.Vector3(-2.5,-.25,-.8),new THREE.Vector3(2.5,3,.8));
+ const bounds=new THREE.Box3(new THREE.Vector3(-3,-.65,-.8),new THREE.Vector3(3,3.6,.8));
  const move=(event:PointerEvent)=>{
   if(event.pointerType==='touch'&&!tapped)return;
   const at=performance.now()/1000,rect=canvas.getBoundingClientRect();
@@ -30,13 +30,14 @@ export function createInteraction(camera:THREE.PerspectiveCamera,canvas:HTMLCanv
   let nearest=Infinity;
   if(ray.ray.intersectsBox(bounds)){
    for(let i=0;i<animated.length;i++)animated[i]=mesh.positions[f.a*animated.length+i]*(1-f.mix)+mesh.positions[f.b*animated.length+i]*f.mix;
+   const worldVertices=transformTerrainVertices(animated,time);
    for(let i=0;i<mesh.topology.length;i+=3){
-    a.fromArray(animated,mesh.topology[i]*3);b.fromArray(animated,mesh.topology[i+1]*3);c.fromArray(animated,mesh.topology[i+2]*3);
+    a.fromArray(worldVertices,mesh.topology[i]*3);b.fromArray(worldVertices,mesh.topology[i+1]*3);c.fromArray(worldVertices,mesh.topology[i+2]*3);
     if(ray.ray.intersectTriangle(a,b,c,false,intersection)){const distance=ray.ray.origin.distanceTo(intersection);if(distance<nearest)nearest=distance;}
    }
   }
   hit=Number.isFinite(nearest)?'horse':'none';
-  if(direction[1]<-.0001){let ground=-origin[1]/direction[1];for(let i=0;i<4;i++)ground=(terrainHeight(origin[0]+direction[0]*ground,origin[2]+direction[2]*ground)-origin[1])/direction[1];if(ground>0&&ground<nearest){nearest=ground;hit='terrain';}}
+  if(direction[1]<-.0001){let ground=-origin[1]/direction[1];for(let i=0;i<4;i++)ground=(worldHeight(origin[0]+direction[0]*ground,origin[2]+direction[2]*ground,time)-origin[1])/direction[1];if(ground>0&&ground<nearest){nearest=ground;hit='terrain';}}
   if(!Number.isFinite(nearest))return;
   return [origin[0]+direction[0]*nearest,origin[1]+direction[1]*nearest,origin[2]+direction[2]*nearest];
  }

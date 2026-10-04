@@ -5,9 +5,10 @@ import { createCameraMotion } from "./camera-motion";
 import { createInteraction } from "./interaction";
 import { createHorseAudio } from "./audio";
 import { createMeadow } from "./meadow-render";
+import { horseTerrainPose } from "./terrain";
 async function start() {
   const art = await createArtwork(),
-    environment = createEnvironment(art.scene);
+    environment = createEnvironment(art.scene, art.wake.uniforms);
   const meadow = createMeadow(art.scene, innerWidth < 600, art.wake.uniforms);
   const sound = createHorseAudio(art.renderer.domElement);
   const interaction = createInteraction(art.camera, art.renderer.domElement, art.mesh);
@@ -24,6 +25,7 @@ async function start() {
     elapsed = 0;
   const diagnostics = {
     time: 0,
+    terrain: horseTerrainPose(0),
     frames: 0,
     quality: 1,
     averageFrameMs: 0,
@@ -73,6 +75,7 @@ async function start() {
     art.renderer.render(art.scene, art.camera);
     elapsed = 0;
     diagnostics.time = time;
+    diagnostics.terrain = horseTerrainPose(time);
     diagnostics.groundDistance = time * GROUND_SPEED;
     diagnostics.frames++;
   }

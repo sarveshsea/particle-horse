@@ -51,22 +51,4 @@ export function advanceImpacts(previous: readonly Impact[],added: readonly Impac
  return [...previous,...added].filter(impact=>time-impact.born<IMPACT_LIFETIME).slice(-IMPACT_LIMIT);
 }
 
-export const SPRAY_GLSL=`
-vec3 sprayPoint(vec4 hit,float age,float seed,float t,float groundSpeed){
- float angle=seed*117.3,radial=.4+fract(seed*71.)*1.9;
- vec3 origin=vec3(hit.x,-.012,hit.y);
- vec3 velocity=vec3(-.6+cos(angle)*radial,3.8+fract(seed*19.)*2.0,sin(angle)*radial*.6)*(.7+hit.w*.3);
- vec3 p=origin+velocity*age+vec3(-groundSpeed*age,-10.0*age*age,0.)+windAt(origin,t)*age*age*.7;
- p.y=max(p.y,-.014);return p;
-}`;
-export function sprayPoint(contact:Impact,age:number,seed:number):HoofPosition{
- if(!Number.isFinite(age)||age<0||!Number.isFinite(seed)||seed<0||seed>1||![contact.x,contact.z,contact.born,contact.strength].every(Number.isFinite))throw new RangeError('Invalid spray parameters');
- const time=contact.born+age,gust=.65+.35*Math.sin(time*.71+1.08),curl=Math.sin(contact.x*.8+contact.z*1.1-time*1.4+2.71);
- const wind={x:-1.3*gust+.28*curl,y:.12*Math.sin(contact.z*1.3-time*.9),z:.34*Math.cos(contact.x*.7-time*1.1)*gust};
- const fract=(value:number)=>value-Math.floor(value),angle=seed*117.3,radial=.4+fract(seed*71)*1.9,factor=.7+contact.strength*.3;
- return {
-  x:contact.x+(-.6+Math.cos(angle)*radial)*factor*age-GROUND_SPEED*age+wind.x*age*age*.7,
-  y:Math.max(-.014,-.012+(3.8+fract(seed*19)*2.0)*factor*age-10.0*age*age+wind.y*age*age*.7),
-  z:contact.z+Math.sin(angle)*radial*.6*factor*age+wind.z*age*age*.7,
- };
-}
+export {DIRT_GLSL as SPRAY_GLSL,dirtPoint as sprayPoint} from './dirt';

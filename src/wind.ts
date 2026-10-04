@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { randomSource } from './equine';
 import { WIND_GLSL } from './forces';
+import { worldHeight,TERRAIN_GLSL } from './terrain';
 
 export function generateWind(count:number,seed=419){
  if(!Number.isInteger(count)||count<1||count>20000)throw new RangeError('Wind population must be an integer from 1 to 20000');
@@ -12,6 +13,17 @@ export function generateWind(count:number,seed=419){
   phases[i]=random();streams[i]=stream;
  }
  return {positions,phases,streams};
+}
+
+export function windStreamPoint(anchor:readonly[number,number,number],stream:number,time:number,speed=6):readonly[number,number,number]{
+ if(![...anchor,stream,time,speed].every(Number.isFinite))throw new RangeError('Wind frame must be finite');
+ let x=((anchor[0]-time*speed+18)%36+36)%36-18;
+ const gust=.65+.35*Math.sin(time*.71+1.08),curl=Math.sin(x*.8+anchor[2]*1.1-time*1.4+2.71);
+ const wx=-1.3*gust+.28*curl,wy=.12*Math.sin(anchor[2]*1.3-time*.9),wz=.34*Math.cos(x*.7-time*1.1)*gust;
+ x+=wx*.28;
+ const z=anchor[2]+Math.sin(x*.78-time*.45+stream*1.73)*.17+wz*.2;
+ const y=anchor[1]+Math.sin(x*.67-time*.61+stream*2.1)*.055+wy*.15+worldHeight(x,z,time);
+ return [x,y,z];
 }
 
 export function createWind(scene:THREE.Scene,speed=6){
@@ -26,12 +38,13 @@ export function createWind(scene:THREE.Scene,speed=6){
   vertexShader:`
   attribute float phase;attribute float stream;uniform float time;uniform float pixelRatio;uniform float speed;varying vec2 direction;varying float alpha;
   ${WIND_GLSL}
+  ${TERRAIN_GLSL}
   vec3 streamPoint(vec3 anchor,float t){
    vec3 p=anchor;p.x=mod(anchor.x-t*speed+18.,36.)-18.;
    vec3 wind=windAt(p,t);p.x+=wind.x*.28;
    p.z+=sin(p.x*.78-t*.45+stream*1.73)*.17+wind.z*.2;
    p.y+=sin(p.x*.67-t*.61+stream*2.1)*.055+wind.y*.15;
-   return p;
+   p.y+=terrainHeightAt(p.xz,t);return p;
   }
   void main(){
    vec3 p=streamPoint(position,time),next=streamPoint(position,time+.012);

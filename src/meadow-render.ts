@@ -4,15 +4,20 @@ import { botanicalColor,grassBlade,petalSurface,leafSurface,type BotanicalKind }
 import { BRUSH_GLSL } from './brush';
 import type { ContactEvent } from './contacts';
 import { WIND_GLSL } from './forces';
+import { TERRAIN_GLSL } from './terrain';
 const vertex=`
 attribute vec3 root;attribute float seed;attribute float kind;attribute vec3 botanicalColor;
 attribute float plantHeight;varying vec3 pigment;
 uniform float time;uniform float pixelRatio;uniform vec4 strikes[16];uniform float still;
 varying float alpha;varying float type;
 ${WIND_GLSL}
+${TERRAIN_GLSL}
 ${BRUSH_GLSL}
 void main(){
- vec3 r=root;r.x=mod(root.x-time*6.+18.,36.)-18.;vec3 p=position;
+ vec3 r=root;r.x=mod(root.x-time*6.+18.,36.)-18.;r.y=terrainHeightAt(r.xz,time);vec3 p=position;
+ vec2 gradient=vec2(terrainMaterialHeight(root.x+.05,root.z)-terrainMaterialHeight(root.x-.05,root.z),terrainMaterialHeight(root.x,root.z+.05)-terrainMaterialHeight(root.x,root.z-.05))/.1;
+ vec3 normal=normalize(vec3(-gradient.x,1.,-gradient.y));
+ vec3 tangent=normalize(vec3(1.,gradient.x,0.));vec3 bitangent=cross(tangent,normal);
  float flatten=0.;vec2 bend=vec2(0.);
  if(abs(r.z)<1.25)for(int i=0;i<16;i++){
   float age=time-strikes[i].z;
@@ -26,7 +31,7 @@ void main(){
  float height=max(p.y,0.);float along=clamp(height/max(.03,plantHeight),0.,1.);
  vec2 sway=(windAt(r,time).xz*.07+vec2(sin(time*1.1+root.x*.7+root.z*.3+seed*6.28),cos(time*.8+root.x*.4+seed*4.))*.06)*height*(1.-still);
  p.xz+=sway+bend*along;p.y*=1.-flatten*.84;
- vec3 world=r+p;
+ vec3 world=r+tangent*p.x+normal*p.y+bitangent*p.z;
  vec3 brush=brushForce(world)*(1.-still);float flex=along*along;
  world+=brush*flex*(kind>1.5&&kind<2.5?.0042:.0023);
  vec4 view=modelViewMatrix*vec4(world,1.);

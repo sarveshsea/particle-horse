@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { TERRAIN_GLSL } from './terrain';
 import { frameAt,randomSource } from './equine';
 import type { Anatomy } from './anatomy';
 import { WIND_GLSL } from './forces';
@@ -53,6 +54,7 @@ uniform float wakeEnabled;
 uniform vec2 hairRootWakeUv;
 varying float hairLight;
 varying float taper;
+${TERRAIN_GLSL}
 ${WIND_GLSL}
 ${BRUSH_GLSL}
 vec3 guide(float index,float pose){return texture2D(hairAtlas,(vec2(index,pose)+.5)/vec2(guideCount,hairFrames)).xyz;}
@@ -76,12 +78,13 @@ void main(){
  p.x-=.32*u*u;p.y-=.22*u*u;
  float rootSpread=.021*strand.z*pow(1.-u,2.);
  p.x-=.004*(1.-u);p.y+=.005*(1.-u)+abs(sin(strand.x))*rootSpread*.35;p.z+=cos(strand.x)*rootSpread;
- p+=rootOffset(tailAt(0.,hairTime))*(1.-.35*u);
  p.y+=sin(strand.x)*width;p.z+=cos(strand.x)*width;
  vec3 wind=windAt(p+vec3(strand.w*.2),hairTime);
  p+=wind*.11*u*u;
  p.y+=sin(hairTime*10.1-u*5.+strand.x)*.026*u*u;
  p.z+=sin(hairTime*8.7-u*4.+strand.w*6.)*.035*u*u;
+ p=terrainPosePoint(p,hairTime);
+ p+=rootOffset(terrainPosePoint(tailAt(0.,hairTime),hairTime))*(1.-.35*u);
  vec3 tipOffset=brushForce(p)*.009*u*u;
  p+=tipOffset*.8/max(.8,length(tipOffset));
  vec4 view=modelViewMatrix*vec4(p,1.);gl_Position=projectionMatrix*view;

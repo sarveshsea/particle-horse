@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { TERRAIN_GLSL } from './terrain';
 import { GPUComputationRenderer } from 'three/addons/misc/GPUComputationRenderer.js';
 import type { sampleSurface } from './equine';
 import { WIND_GLSL } from './forces';
@@ -7,7 +8,7 @@ type Cloud = ReturnType<typeof sampleSurface>;
 export interface WakePointer { point: THREE.Vector3; direction: THREE.Vector3; strength: number; segments?: readonly BrushSegment[]; view?: THREE.Vector3 }
 type AtlasUniforms = {
  atlas: {value: THREE.DataTexture}; atlasSize:{value:THREE.Vector2};
- vertexCount:{value:number}; frame:{value:THREE.Vector3};
+ vertexCount:{value:number}; frame:{value:THREE.Vector3}; terrainTime?:{value:number};
 };
 export const wakeShader = `
 attribute vec2 wakeUv;
@@ -32,6 +33,8 @@ uniform sampler2D atlas;
 uniform vec2 atlasSize;
 uniform float vertexCount;
 uniform vec3 frame;
+uniform float terrainTime;
+${TERRAIN_GLSL}
 uniform float stepTime;
 uniform float time;
 uniform vec3 pointer;
@@ -39,7 +42,7 @@ uniform vec3 direction;
 uniform float strength;
 uniform float simulationCount;
 vec3 at(float index,float pose){float id=index+pose*vertexCount;return texture2D(atlas,(vec2(mod(id,atlasSize.x),floor(id/atlasSize.x))+.5)/atlasSize).xyz;}
-vec3 animated(float id){return mix(at(id,frame.x),at(id,frame.y),frame.z);}
+vec3 animated(float id){return terrainPosePoint(mix(at(id,frame.x),at(id,frame.y),frame.z),terrainTime);}
 ${WIND_GLSL}
 ${BRUSH_GLSL}
 vec3 acceleration(vec2 uv,vec3 offset,vec3 velocity){
@@ -77,7 +80,7 @@ export function createParticleWake(renderer:THREE.WebGLRenderer,count:number,clo
   velocity=gpu.addVariable('velocityState',`${shared}void main(){if((gl_FragCoord.y-.5)*resolution.x+gl_FragCoord.x-.5>=simulationCount){gl_FragColor=vec4(0.);return;}vec2 uv=gl_FragCoord.xy/resolution.xy;vec3 p=texture2D(offsetState,uv).xyz,v=texture2D(velocityState,uv).xyz;v+=acceleration(uv,p,v)*stepTime;v*=8./max(8.,length(v));gl_FragColor=vec4(v,1.);}`,initial);
   for(const variable of [offset,velocity]){
    gpu.setVariableDependencies(variable,[offset,velocity]);
-   Object.assign(variable.material.uniforms,atlasUniforms,{brushStart:uniforms.brushStart,brushEnd:uniforms.brushEnd,brushDirection:uniforms.brushDirection,brushView:uniforms.brushView,brushCount:uniforms.brushCount},{triangleData:{value:triangles},weightData:{value:weights},simulationCount,stepTime:{value:1/60},time:uniforms.wakeTime,pointer:uniforms.wakePointer,direction:uniforms.wakeDirection,strength:uniforms.wakeStrength});
+   Object.assign(variable.material.uniforms,{terrainTime:{value:0}},atlasUniforms,{brushStart:uniforms.brushStart,brushEnd:uniforms.brushEnd,brushDirection:uniforms.brushDirection,brushView:uniforms.brushView,brushCount:uniforms.brushCount},{triangleData:{value:triangles},weightData:{value:weights},simulationCount,stepTime:{value:1/60},time:uniforms.wakeTime,pointer:uniforms.wakePointer,direction:uniforms.wakeDirection,strength:uniforms.wakeStrength});
   }
   if(gpu.init()===null){uniforms.wakeEnabled.value=1;uniforms.wakeTexture.value=gpu.getCurrentRenderTarget(offset).texture;}
   else {gpu.dispose();gpu=undefined;}

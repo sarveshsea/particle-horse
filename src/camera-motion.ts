@@ -1,4 +1,5 @@
 import type { PerspectiveCamera } from "three";
+import { worldHeight } from "./terrain";
 
 export interface CameraPose {
   readonly yaw: number;
@@ -43,8 +44,9 @@ export function createCameraMotion(
   canvas.style.touchAction = "none";
   const apply = () => {
     const horizontal = pose.radius * Math.cos(pose.elevation);
-    camera.position.set(-.2 + horizontal * Math.sin(pose.yaw), 1.07 + pose.radius * Math.sin(pose.elevation), horizontal * Math.cos(pose.yaw));
-    camera.lookAt(-.2, 1.07, 0);
+    const targetHeight=1.07+worldHeight(0,0,reduced?0:time);
+    camera.position.set(-.2 + horizontal * Math.sin(pose.yaw), targetHeight + pose.radius * Math.sin(pose.elevation), horizontal * Math.cos(pose.yaw));
+    camera.lookAt(-.2, targetHeight, 0);
   };
   const down = (event: PointerEvent) => {
     if (event.button !== 0 || reduced || active) return;

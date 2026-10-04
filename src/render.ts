@@ -1,4 +1,6 @@
 import * as THREE from "three";
+import { TERRAIN_GLSL } from "./terrain";
+import { refineGait } from "./gait-refinement";
 import { refineAnatomy } from "./anatomy";
 import { createHair } from "./hair";
 import { drawingRatioScale } from "./dynamics";
@@ -14,8 +16,10 @@ uniform sampler2D atlas;
 uniform vec2 atlasSize;
 uniform float vertexCount;
 uniform vec3 frame;
+uniform float terrainTime;
+${TERRAIN_GLSL}
 vec3 vertexAt(float index,float pose){float id=index+pose*vertexCount;vec2 uv=(vec2(mod(id,atlasSize.x),floor(id/atlasSize.x))+.5)/atlasSize;return texture2D(atlas,uv).xyz;}
-vec3 animated(float index){return mix(vertexAt(index,frame.x),vertexAt(index,frame.y),frame.z);}
+vec3 animated(float index){return terrainPosePoint(mix(vertexAt(index,frame.x),vertexAt(index,frame.y),frame.z),terrainTime);}
 `;
 const vertexShader = `
 attribute vec3 triangle;
@@ -92,7 +96,7 @@ export async function createArtwork() {
   document.body.append(renderer.domElement);
   const scene = new THREE.Scene(),
     camera = new THREE.PerspectiveCamera(34, 1, 0.1, 120);
-  const anatomy = refineAnatomy(await loadEquine());
+  const anatomy = refineAnatomy(refineGait(await loadEquine()));
   const mesh = anatomy.mesh;
   const compact = innerWidth < 600;
   const count = compact ? 68000 : 140000;
@@ -117,6 +121,7 @@ export async function createArtwork() {
     atlasSize: { value: new THREE.Vector2(width, height) },
     vertexCount: { value: mesh.vertexCount },
     frame: { value: new THREE.Vector3(0, 1, 0) },
+    terrainTime: { value: 0 },
     pixelRatio: { value: 1 },
     density: { value: 1 },
   };
@@ -237,6 +242,7 @@ export async function createArtwork() {
     camera.updateProjectionMatrix();
   }
   function setTime(time: number) {
+    uniforms.terrainTime.value = time;
     const frame = frameAt(time, mesh.frameCount, mesh.cycleSeconds);
     uniforms.frame.value.set(frame.a, frame.b, frame.mix);
     hair.update(time, undefined, renderer.getPixelRatio());
