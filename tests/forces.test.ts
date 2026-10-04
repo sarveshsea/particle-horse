@@ -14,3 +14,9 @@ describe('hoof forces',()=>{
  it('rejects missing anatomical hoof regions',()=>{expect(()=>extractHooves({...mesh,positions:new Float32Array(mesh.positions.length).fill(1)})).toThrow('Incomplete anatomical hoof tracks');});
  it('rejects invalid times',()=>{expect(()=>hoofAt(mesh,extractHooves(mesh)[0],NaN)).toThrow();});
 });
+
+it('spray trajectories ascend, fall, land and keep travelling with the bed',async()=>{
+ const {sprayPoint}=await import('../src/forces');const contact={x:.2,z:.1,born:0,strength:.85};
+ for(const seed of [.1,.4,.9]){const initial=sprayPoint(contact,0,seed),up=sprayPoint(contact,.08,seed),fall=sprayPoint(contact,.6,seed),settled=sprayPoint(contact,.9,seed);expect(up.y).toBeGreaterThan(initial.y);expect(fall.y).toBeLessThan(up.y);expect(settled.y).toBe(-.014);expect(settled.x).toBeLessThan(initial.x-3);expect([settled.x,settled.y,settled.z].every(Number.isFinite)).toBe(true);}
+ expect(()=>sprayPoint(contact,NaN,.5)).toThrow();expect(()=>sprayPoint(contact,.2,Infinity)).toThrow();
+});

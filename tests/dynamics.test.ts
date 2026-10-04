@@ -22,3 +22,8 @@ test('samples sustained slow rendering by wall time without waiting ninety frame
  expect(qualityWindowReady(90,1000)).toBe(true);
  expect(qualityWindowReady(60,1000)).toBe(false);
 });
+test('protects sparkle sharpness before degrading drawing resolution',async()=>{
+ const {drawingRatioScale}=await import('../src/dynamics');
+ expect(drawingRatioScale(1)).toBe(1);expect(drawingRatioScale(.35)).toBeGreaterThanOrEqual(.84);
+ expect(drawingRatioScale(.35)).toBeLessThan(.86);expect(()=>drawingRatioScale(NaN)).toThrow();
+});
