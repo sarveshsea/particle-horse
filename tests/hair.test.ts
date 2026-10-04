@@ -27,6 +27,11 @@ test('hair renderer shares force uniforms, adapts complete strands, and releases
  const anatomy={...guide,faceWeights:new Float32Array(),featureWeights:new Float32Array(),tailMask:new Uint8Array(),landmarks:{eyes:[4279,5441],nostrils:[3333,4547],jaws:[3543,4758],ears:[3876,5088]},mesh:{...guide.mesh,vertexCount:3,triangleCount:1,positions:new Float32Array(18),topology:new Uint32Array([0,1,2])}} as Parameters<typeof createHair>[1];
  const renderer=createHair(scene,anatomy,shared);
  expect(scene.children).toContain(renderer.points);
+ expect(renderer.lines.material.blending).toBe(THREE.NormalBlending);
+ expect(renderer.material.blending).toBe(THREE.NormalBlending);
+ const highlights=renderer.geometry.getAttribute('highlight');
+ expect(highlights).toBeDefined();
+ expect(Array.from(highlights.array).filter(value=>value>0).length).toBeLessThan(640*48*.15);
  expect(renderer.lines.geometry.getIndex()!.count).toBe(640*47*2);
  expect(renderer.lines.material.uniforms.hairTime).toBe(renderer.material.uniforms.hairTime);
  expect(renderer.lines.material.uniforms.hairAtlas).toBe(renderer.material.uniforms.hairAtlas);
@@ -57,4 +62,10 @@ test('root bundle grows from a small croup footprint while neighboring strand sa
   expect(Math.hypot(...next.map((x,a)=>x-root[a]))).toBeLessThan(.003);
  }
  expect(new Set(roots).size).toBe(32);
+});
+
+test('proximal strands spread before the long trailing hair without collapsing into a cord',()=>{
+ const cloud=generateHair(100,48);let minZ=Infinity,maxZ=-Infinity;
+ for(let i=0;i<100;i++){const strand=cloud.strand.slice(i*48*4,i*48*4+4);const point=hairPoint(guide,0,.2,strand);minZ=Math.min(minZ,point[2]);maxZ=Math.max(maxZ,point[2]);}
+ expect(maxZ-minZ).toBeGreaterThan(.07);
 });
