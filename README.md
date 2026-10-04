@@ -18,7 +18,7 @@ The source is an authored equine model, not a scan or a clinically validated ana
 
 ## Rendering behavior
 
-The canvas fills the viewport. Slow frames lower density by seeded selection across the entire surface and reduce pixel ratio. Resize preserves the performance budget. Hidden tabs pause, reduced motion freezes the composition, and WebGL context restoration resumes rendering. The initial asset load shows only the black canvas. WebGL2 is required.
+The canvas fills the viewport. Slow frames shorten draw ranges over randomly ordered surface and sand samples and reduce pixel ratio. This reduces actual GPU submissions while preserving the anatomical distribution. Resize preserves the performance budget. Hidden tabs pause, reduced motion freezes the composition, and WebGL context restoration resumes rendering. The initial asset load shows only the black canvas. WebGL2 is required.
 
 ## Verification
 
