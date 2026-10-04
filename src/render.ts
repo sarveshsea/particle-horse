@@ -26,7 +26,6 @@ varying float light;
 varying float opacity;
 ${atlasShader}
 void main(){
- if(seed>density){gl_Position=vec4(2.,2.,2.,1.);gl_PointSize=0.;light=0.;opacity=0.;return;}
  vec3 a=animated(triangle.x),b=animated(triangle.y),c=animated(triangle.z);
  vec3 p=a*barycentric.x+b*barycentric.y+c*(1.-barycentric.x-barycentric.y);
  vec3 n=cross(b-a,c-a);vec3 face=n*inversesqrt(max(dot(n,n),1e-10));

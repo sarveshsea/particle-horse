@@ -134,10 +134,16 @@ test("reduces actual rendering density under sustained slow frames", async ({
   page,
 }) => {
   await page.addInitScript(() => {
-    const originalDraw=WebGL2RenderingContext.prototype.drawArrays;
-    WebGL2RenderingContext.prototype.drawArrays=function(mode,first,count){
-      if(mode===this.POINTS)(window as unknown as {pointSubmission:number}).pointSubmission=count;
-      return originalDraw.call(this,mode,first,count);
+    const originalDraw = WebGL2RenderingContext.prototype.drawArrays;
+    WebGL2RenderingContext.prototype.drawArrays = function (
+      mode,
+      first,
+      count,
+    ) {
+      if (mode === this.POINTS)
+        (window as unknown as { pointSubmission: number }).pointSubmission =
+          count;
+      return originalDraw.call(this, mode, first, count);
     };
 
     const request = window.requestAnimationFrame.bind(window);
@@ -153,7 +159,11 @@ test("reduces actual rendering density under sustained slow frames", async ({
     .poll(async () => (await stats(page))?.quality, { timeout: 12000 })
     .toBeLessThan(1);
   expect((await stats(page)).particles).toBeLessThan(140000);
-  expect(await page.evaluate(()=>(window as unknown as {pointSubmission:number}).pointSubmission)).toBe((await stats(page)).particles);
+  expect(
+    await page.evaluate(
+      () => (window as unknown as { pointSubmission: number }).pointSubmission,
+    ),
+  ).toBe((await stats(page)).particles);
 
   await page.setViewportSize({ width: 844, height: 390 });
   await expect

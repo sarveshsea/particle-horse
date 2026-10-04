@@ -53,6 +53,8 @@ async function start() {
       diagnostics.particles = Math.floor(
         art.geometry.getAttribute("position").count * quality,
       );
+      art.geometry.setDrawRange(0, diagnostics.particles);
+      environment.setQuality(quality);
       art.resize();
       total = 0;
       samples = 0;

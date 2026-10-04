@@ -34,5 +34,12 @@ export function createEnvironment(scene: THREE.Scene) {
   sand.renderOrder = 1;
   sand.frustumCulled = false;
   scene.add(sand);
-  return { materials: [material] };
+  return {
+    materials: [material],
+    setQuality: (quality: number) =>
+      geometry.setDrawRange(
+        0,
+        Math.floor(seeds.length * Math.max(0.5, quality)),
+      ),
+  };
 }
