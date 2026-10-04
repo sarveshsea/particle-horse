@@ -1,35 +1,40 @@
-# Final visual and runtime validation
+# Visual and runtime validation
 
-Validated October 3, 2026 (America/Chicago) against the production build in Chromium on the local macOS test machine.
+Validated October 4, 2026 against the production build in Chromium. The artwork retains a detailed authored equine surface, a 0.9-second gallop, attached fiber shading, a pure black background, and no visible words or controls.
 
-The detailed equine surface runs through a 0.9-second authored gallop. Fixed barycentric coordinates keep surface particles and fine fiber shading attached through deformation. Smooth, transported normals emphasize the shoulder, barrel and hindquarter. A colorless depth pass hides far-side points; no solid horse is visibly drawn.
+Four anatomical hoof tracks gate sand forces to contact phases. A bounded 24-impact pool displaces the advected bed and emits short ballistic sprays. Six peripheral white wind streams share the gust/curl field used by sand and displaced horse particles.
 
-White granular ground replaces the previous wire grid. Seeded irregular grains, shallow height variation and faded edges form the bed. The ground flows backward at 6 rendering units per second. No visible text or controls are present.
+Hover pulls local particle streams away from moving anatomical anchors. A damped GPU spring restores them; offsets are capped at 0.8 rendering units and velocities at 8 units/second. Separate attached and scattered passes preserve volume while keeping detached particles visible. The camera follows a restrained 20-second arc, supports damped dragging, and returns after three seconds idle. Touch taps disturb; touch drags steer.
 
-## Checks
+## Verification
 
-- 31 unit/integration tests pass. Surface generation, smooth-normal/fiber attachment, frame interpolation, source validation, granular ground bounds and quality policy have 100% statement, branch, function and line coverage.
-- Seven production browser tests pass: startup/wordless rendering and resize; reduced motion; hidden-tab pause/resume; WebGL recovery; nonempty portrait rendering; sustained slow-frame adaptation including intercepted GPU draw calls and resolution retained after resize; measurable ground travel and lower-screen pixel changes.
-- Slow frames shorten the draw range of randomly ordered surface samples and ground grains, reducing actual GPU submissions. Prefix samples remain distributed over the whole anatomy. Desktop and compact profiles target 60 and 30 fps respectively.
-- Dependency audit reports zero vulnerabilities. Type checking and production build pass. Final review found no material issues.
-- Desktop, portrait and 3840×2160 frames rendered without runtime or shader errors. Successive gait frames are below.
+- 50 unit/integration tests pass. Coverage across generation, gait interpolation, force/contact logic, spring dynamics, camera motion and wind generation is 99.64% statements, 99.12% branches, and 100% functions/lines; every configured threshold exceeds 80%.
+- 14 production browser tests pass: wordless startup, resize, portrait framing, hidden-tab pause/resume, context restoration, adaptive GPU submissions/resolution, visible ground travel, bounded hoof impulses, mouse/drag behavior, reduced-motion stillness and recovery, measurable GPU scattering/reassembly, native touch gestures, and forced analytic fallback without floating-point render targets.
+- GPU readback verifies visible displacement and complete return. Return checks wait two seconds of scene time, avoiding a wall-time assumption on very slow software-rendered CI machines.
+- Fixed 60 Hz simulation sleeps when settled and skips inactive particle prefixes after quality adaptation. Wind and spray decrease more aggressively than anatomical point counts. Reduced-motion and context-restoration paths reset the simulation before drawing.
+- Type checking/build pass; full dependency audit reports zero vulnerabilities. Final read-only code/security review found no remaining material issues.
+- Desktop, portrait and 3840×2160 frames rendered without shader or runtime errors. The motion recording shows gallop, interaction, reassembly and camera dragging.
 
-## Sustained rendering observation
+## Sustained rendering observations
 
-Each profile warmed up for five seconds, then ran for eight seconds. Results use actual wall-clock elapsed time. Adaptive quality remained active. These observations are specific to the local test machine; portrait browser emulation is not a physical phone benchmark.
+Each profile warmed up for six seconds, then ran for six seconds. Continuous-hover measurements repeatedly disturbed the horse throughout both periods. Rates use actual wall-clock time with adaptive quality active.
 
-| Profile | Viewport | Device pixel ratio | Mean fps | Horse particles at end | Quality at end |
+The browser reported **ANGLE / Vulkan SwiftShader**, a software renderer, rather than the physical GPU. Portrait uses browser emulation, not a physical phone. Desktop approaches the 60 fps target; both portrait profiles exceed the 30 fps target. These are local observations, not universal performance guarantees.
+
+| Profile | Viewport | Initial device ratio | Mean fps | Horse particles at end | Quality at end |
 | --- | --- | --- | --- | --- | --- |
-| desktop | 1440×1000 | 1, adaptively reduced | 58.66 | 103,600 | 0.740 |
-| portrait | 390×844 | 2, capped at 1.75 | 57.86 | 68,000 | 1.000 |
+| desktop idle | 1440×1000 | 1 | 58.06 | 100,100 | 0.715 |
+| desktop continuous hover | 1440×1000 | 1 | 58.09 | 56,700 | 0.405 |
+| portrait idle | 390×844 | 2 | 60.04 | 68,000 | 1.000 |
+| portrait continuous hover | 390×844 | 2 | 50.71 | 68,000 | 1.000 |
 
 Raw observations: [performance.json](performance.json). Motion preview: [preview.mp4](preview.mp4).
 
-## Gait frames
+## Visual evidence
 
-![Frame 1](gallop-1.png)
-![Frame 2](gallop-2.png)
-![Frame 3](gallop-3.png)
-![Frame 4](gallop-4.png)
-
+![Artwork](artwork.png)
+![Gait 1](gallop-1.png)
+![Gait 2](gallop-2.png)
+![Gait 3](gallop-3.png)
+![Gait 4](gallop-4.png)
 ![Portrait](portrait.png)

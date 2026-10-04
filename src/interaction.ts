@@ -17,13 +17,15 @@ export function createInteraction(camera: THREE.PerspectiveCamera, canvas: HTMLC
     cursor={x,y,at,speed:Math.min(4,Math.hypot(dx,dy)/elapsed),dx,dy};
   };
   const clear=()=>{cursor=undefined;tapped=false;};
+  const leave=(event:PointerEvent)=>{if(event.pointerType !== 'touch')clear();};
   canvas.addEventListener('pointermove',move);
-  canvas.addEventListener('pointerleave',clear);
+  canvas.addEventListener('pointerleave',leave);
   canvas.addEventListener('pointercancel',clear);
   return {
     tap(event:PointerEvent){tapped=true;move(event);},
     update(disabled:boolean):WakePointer {
       let strength=0;
+      if(disabled)clear();
       if(cursor&&!disabled){
         const age=performance.now()/1000-cursor.at;
         camera.getWorldDirection(normal);
@@ -39,6 +41,6 @@ export function createInteraction(camera: THREE.PerspectiveCamera, canvas: HTMLC
       }
       return {point,direction,strength};
     },
-    dispose(){canvas.removeEventListener('pointermove',move);canvas.removeEventListener('pointerleave',clear);canvas.removeEventListener('pointercancel',clear);},
+    dispose(){canvas.removeEventListener('pointermove',move);canvas.removeEventListener('pointerleave',leave);canvas.removeEventListener('pointercancel',clear);},
   };
 }

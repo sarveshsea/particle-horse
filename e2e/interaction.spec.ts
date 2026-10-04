@@ -37,7 +37,9 @@ test('fast sweeps pull visible streams out and particles reassemble',async({page
  const displacement=()=>page.evaluate(()=>(window as unknown as {__ARTWORK:{inspectWake:()=>number}}).__ARTWORK.inspectWake());
  for(let i=0;i<3;i++){await page.mouse.move(620,440);await page.mouse.move(840,470,{steps:10});}
  const maximum=await displacement();expect(maximum).toBeGreaterThan(.2);expect(maximum).toBeLessThanOrEqual(.801);
- await page.mouse.move(-20,-20);await expect.poll(displacement,{timeout:3000}).toBeLessThan(.005);
+ await page.mouse.move(-20,-20);const released=(await state(page)).time;
+ await expect.poll(async()=> (await state(page)).time,{timeout:12000}).toBeGreaterThan(released+2);
+ expect(await displacement()).toBeLessThan(.005);
 });
 test('touch taps disturb locally and touch drags only steer the camera',async({browser})=>{
  const context=await browser.newContext({viewport:{width:390,height:844},hasTouch:true});const page=await context.newPage();
