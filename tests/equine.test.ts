@@ -116,3 +116,11 @@ test("published equine assets preserve finite, shared topology across the entire
   const cloud = sampleSurface(mesh, 2000, 41);
   expect(cloud.triangles.length).toBe(6000);
 });
+
+test('surface samples carry finite smooth normals and attached fiber coordinates',()=>{
+ const cloud=sampleSurface(fixture(),1000,19);
+ expect(cloud.normalCoefficients.length).toBe(3000);
+ expect(cloud.restPoints.length).toBe(3000);
+ expect([...cloud.normalCoefficients,...cloud.restPoints].every(Number.isFinite)).toBe(true);
+ for(let i=0;i<1000;i++)expect(Math.hypot(...cloud.normalCoefficients.slice(i*3,i*3+3))).toBeCloseTo(1,5);
+});
