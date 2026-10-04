@@ -14,11 +14,13 @@
     "three": "^0.180.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.55.1",
+    "@types/pngjs": "^6.0.5",
     "@types/three": "^0.180.0",
+    "@vitest/coverage-v8": "^4.1.11",
+    "pngjs": "^7.0.0",
     "typescript": "^5.9.3",
     "vite": "^7.1.9",
-    "vitest": "^4.1.11",
-    "@vitest/coverage-v8": "^4.1.11",
-    "@playwright/test": "^1.55.1"
+    "vitest": "^4.1.11"
   }
 }
