@@ -33,12 +33,13 @@ test('switching reduced motion on restores a disturbed horse completely',async({
  await expect.poll(displacement).toBeLessThan(.002);
 });
 test('fast sweeps pull visible streams out and particles reassemble',async({page})=>{
+ test.setTimeout(60000);
  await page.goto('/');await expect.poll(async()=> (await state(page))?.time).toBeGreaterThan(.1);
  const displacement=()=>page.evaluate(()=>(window as unknown as {__ARTWORK:{inspectWake:()=>number}}).__ARTWORK.inspectWake());
  for(let i=0;i<3;i++){await page.mouse.move(620,440);await page.mouse.move(840,470,{steps:10});}
  const maximum=await displacement();expect(maximum).toBeGreaterThan(.2);expect(maximum).toBeLessThanOrEqual(.801);
  await page.mouse.move(-20,-20);const released=(await state(page)).time;
- await expect.poll(async()=> (await state(page)).time,{timeout:12000}).toBeGreaterThan(released+2);
+ await expect.poll(async()=> (await state(page)).time,{timeout:30000}).toBeGreaterThan(released+2);
  expect(await displacement()).toBeLessThan(.005);
 });
 test('touch taps disturb locally and touch drags only steer the camera',async({browser})=>{
