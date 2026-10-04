@@ -7,20 +7,23 @@ export function createHorseAudio(canvas: HTMLCanvasElement) {
   let capture: MediaStreamAudioDestinationNode | undefined;
   let paused = false, loading = false, ready = false, disposed = false;
   let seen: ReadonlySet<string> = new Set();
-  const voices = new Set<AudioBufferSourceNode>();
+  const voices = new Map<AudioBufferSourceNode, () => void>();
   let buffers: readonly AudioBuffer[] = [];
   let ambience: AudioBufferSourceNode | undefined;
+  let releaseAmbience: (() => void) | undefined;
   const startAmbience = () => {
     if (!context || !master || !ready || paused || ambience) return;
     ambience = context.createBufferSource(); ambience.buffer = buffers[8]; ambience.loop = true; ambience.playbackRate.value = .28;
     const filter = context.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 1800;
     const gain = context.createGain(); gain.gain.value = .012;
     ambience.connect(filter); filter.connect(gain); gain.connect(master); ambience.start();
+    const source = ambience;
+    releaseAmbience = () => { source.stop(); source.disconnect(); filter.disconnect(); gain.disconnect(); };
   };
   const stopVoices = () => {
-    for (const voice of voices) { voice.onended = null; voice.stop(); }
+    for (const [voice, release] of voices) { voice.onended = null; voice.stop(); release(); }
     voices.clear(); diagnostics.activeVoices = 0;
-    if (ambience) { ambience.stop(); ambience.disconnect(); ambience = undefined; }
+    if (ambience) { releaseAmbience!(); ambience = undefined; releaseAmbience = undefined; }
   };
   const load = async () => {
     if (!context || loading) return;
@@ -41,7 +44,7 @@ export function createHorseAudio(canvas: HTMLCanvasElement) {
     if (!event.isTrusted || !supported || disposed) return;
     if (!context) {
       context = new AudioContext();
-      master = context.createGain(); master.gain.value = .8;
+      master = context.createGain(); master.gain.value = diagnostics.muted ? 0 : .8;
       const limiter = context.createDynamicsCompressor();
       limiter.threshold.value = -12; limiter.knee.value = 6; limiter.ratio.value = 12;
       limiter.attack.value = .003; limiter.release.value = .18;
@@ -64,13 +67,20 @@ export function createHorseAudio(canvas: HTMLCanvasElement) {
     const source = context.createBufferSource(); source.buffer = buffer; source.playbackRate.value = rate;
     const gain = context.createGain(); gain.gain.value = level;
     const panner = context.createStereoPanner(); panner.pan.value = pan;
+    let filter: BiquadFilterNode | undefined;
     if (sand) {
-      const filter = context.createBiquadFilter(); filter.type = 'highpass'; filter.frequency.value = 800;
+      filter = context.createBiquadFilter(); filter.type = 'highpass'; filter.frequency.value = 800;
       source.connect(filter); filter.connect(gain);
     } else source.connect(gain);
     gain.connect(panner); panner.connect(master);
-    voices.add(source); diagnostics.activeVoices = voices.size;
-    source.onended = () => { voices.delete(source); diagnostics.activeVoices = voices.size; source.disconnect(); gain.disconnect(); panner.disconnect(); };
+    let released = false;
+    const release = () => {
+      if (released) return;
+      released = true; source.disconnect(); gain.disconnect(); panner.disconnect(); filter?.disconnect();
+      voices.delete(source); diagnostics.activeVoices = voices.size;
+    };
+    voices.set(source, release); diagnostics.activeVoices = voices.size;
+    source.onended = release;
     source.start(start);
   };
   const update = (time: number, events: readonly AudioContact[], camera: AudioCamera) => {

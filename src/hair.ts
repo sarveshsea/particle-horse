@@ -25,7 +25,7 @@ export function hairPoint(anatomy:HairGuide,time:number,u:number,strand:ArrayLik
  }
  const phase=2*Math.PI*((time%anatomy.mesh.cycleSeconds)/anatomy.mesh.cycleSeconds);
  out[0]-=.32*t*t;out[1]-=.38*t*t;
- const width=(.014+.047*t)*strand[2];
+ const width=(.014+.106*t)*strand[2];
  out[1]+=Math.sin(strand[0])*width*t+Math.sin(phase-t*5+strand[0])*.028*t*t;
  out[2]+=Math.cos(strand[0])*width*t+Math.sin(phase-t*4+strand[3]*6)*.045*t*t;
  return out;
@@ -57,7 +57,7 @@ vec3 tailAt(float u,float delayed){
 }
 void main(){
  float u=parameter;vec3 p=tailAt(u*strand.y,hairTime-u*.048);
- float width=(.014+.047*u)*strand.z;
+ float width=(.014+.106*u)*strand.z;
  p.x-=.32*u*u;p.y-=.38*u*u;
  p.y+=sin(strand.x)*width*u;p.z+=cos(strand.x)*width*u;
  vec3 wind=windAt(p+vec3(strand.w*.2),hairTime);
@@ -72,7 +72,7 @@ void main(){
  hairLight=(.48+strand.w*.38)*(.55+.45*taper);
 }`;
 const fragmentShader=`varying float hairLight;varying float taper;
-void main(){float r=length(gl_PointCoord-.5)*2.;if(r>1.)discard;gl_FragColor=vec4(vec3(hairLight),exp(-r*r*3.8)*(.50+.18*taper));}`;
+void main(){float r=length(gl_PointCoord-.5)*2.;if(r>1.)discard;gl_FragColor=vec4(vec3(hairLight),(.70*(1.-smoothstep(.15,.46,r))+.10*exp(-r*r*6.))*(.36+.12*taper));}`;
 export function createHair(scene:THREE.Scene,anatomy:Anatomy,sharedUniforms:Record<string,THREE.IUniform>){
  const cloud=generateHair(),data=new Float32Array(anatomy.guideCount*anatomy.mesh.frameCount*4);
  for(let i=0;i<anatomy.tailGuide.length/3;i++)data.set(anatomy.tailGuide.subarray(i*3,i*3+3),i*4);
@@ -83,12 +83,24 @@ export function createHair(scene:THREE.Scene,anatomy:Anatomy,sharedUniforms:Reco
  const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.BufferAttribute(cloud.positions,3));geometry.setAttribute('strand',new THREE.BufferAttribute(cloud.strand,4));geometry.setAttribute('parameter',new THREE.BufferAttribute(cloud.parameter,1));
  const material=new THREE.ShaderMaterial({uniforms,vertexShader,fragmentShader,transparent:true,depthWrite:false,depthTest:true,blending:THREE.AdditiveBlending});
  const points=new THREE.Points(geometry,material);points.frustumCulled=false;points.renderOrder=3;scene.add(points);
- return {points,geometry,material,
+ const lineGeometry=new THREE.BufferGeometry();
+ for(const [name,attribute] of Object.entries(geometry.attributes))lineGeometry.setAttribute(name,attribute);
+ const indices=new Uint32Array(cloud.count*(cloud.samples-1)*2);
+ for(let strand=0;strand<cloud.count;strand++)for(let sample=0;sample<cloud.samples-1;sample++){
+  const offset=(strand*(cloud.samples-1)+sample)*2,vertex=strand*cloud.samples+sample;
+  indices[offset]=vertex;indices[offset+1]=vertex+1;
+ }
+ lineGeometry.setIndex(new THREE.BufferAttribute(indices,1));
+ const lineMaterial=new THREE.ShaderMaterial({uniforms,vertexShader,
+  fragmentShader:'varying float hairLight;varying float taper;void main(){gl_FragColor=vec4(vec3(hairLight),.055*(.38+.62*taper));}',
+  transparent:true,depthWrite:false,depthTest:true,blending:THREE.AdditiveBlending});
+ const lines=new THREE.LineSegments(lineGeometry,lineMaterial);lines.frustumCulled=false;lines.renderOrder=2.5;scene.add(lines);
+ return {points,lines,geometry,material,
   update(time:number,pointer:WakePointer|undefined,pixelRatio:number){
    uniforms.hairTime.value=Number.isFinite(time)?time:0;uniforms.hairPixelRatio.value=Number.isFinite(pixelRatio)?pixelRatio:1;
    if(pointer){uniforms.wakePointer.value.copy(pointer.point);uniforms.wakeDirection.value.copy(pointer.direction);uniforms.wakeStrength.value=pointer.strength;}
   },
-  setQuality(quality:number){const q=Math.max(.35,Math.min(1,Number.isFinite(quality)?quality:1));geometry.setDrawRange(0,Math.floor(cloud.count*q)*cloud.samples);},
-  dispose(){scene.remove(points);geometry.dispose();material.dispose();atlas.dispose();},
+  setQuality(quality:number){const q=Math.max(.35,Math.min(1,Number.isFinite(quality)?quality:1));const visible=Math.floor(cloud.count*q);geometry.setDrawRange(0,visible*cloud.samples);lineGeometry.setDrawRange(0,visible*(cloud.samples-1)*2);},
+  dispose(){scene.remove(points,lines);geometry.dispose();lineGeometry.dispose();material.dispose();lineMaterial.dispose();atlas.dispose();},
  };
 }

@@ -1,4 +1,6 @@
 import * as THREE from "three";
+import { refineAnatomy } from "./anatomy";
+import { createHair } from "./hair";
 import { drawingRatioScale } from "./dynamics";
 import { createParticleWake, wakeShader } from "./particle-wake";
 import {
@@ -22,6 +24,8 @@ attribute vec3 normalCoefficients;
 attribute vec3 restPoint;
 attribute float seed;
 attribute float brightness;
+attribute float faceWeight;
+attribute vec4 featureWeight;
 uniform float density;
 uniform float pixelRatio;
 varying float light;
@@ -40,7 +44,7 @@ void main(){
  detachment=smoothstep(.018,.09,length(offset));
  vec4 view=modelViewMatrix*vec4(p+offset+normal*.002,1.);
  gl_Position=projectionMatrix*view;
- gl_PointSize=clamp((7.8+seed*6.)*pixelRatio/-view.z,.8,3.*pixelRatio);
+ gl_PointSize=clamp((9.2+seed*6.8)*pixelRatio/-view.z,.8,3.0*pixelRatio);
  float diffuse=max(0.,dot(normal,normalize(vec3(-.25,.65,1.))))*.8+max(0.,dot(normal,normalize(vec3(1.,.3,.2))))*.2;
  float bodyPhase=(restPoint.y+.055*sin(restPoint.x*4.)+.13*restPoint.z)*190.;
  float neckPhase=(restPoint.x*.78+restPoint.y*.52+restPoint.z*.14)*205.;
@@ -50,14 +54,18 @@ void main(){
  phase=mix(phase,hindPhase,1.-smoothstep(-.75,-.15,restPoint.x));
  phase=mix(phase,neckPhase,smoothstep(.18,.55,restPoint.x)*smoothstep(1.1,1.65,restPoint.y));
  float fiber=pow(.5+.5*sin(phase),8.);
- float muscleMask=smoothstep(-1.3,-.9,restPoint.x);
+ float muscleMask=smoothstep(-1.3,-.9,restPoint.x)*(1.-faceWeight);
  float rim=pow(1.-abs(dot(normal,normalize(cameraPosition-p))),2.);
- light=brightness*(.22+diffuse*.90+rim*.22)*mix(1.,.72+fiber*.40,muscleMask);
- opacity=.68;
+ light=brightness*(.42+diffuse*1.12+rim*.30)*mix(1.,.72+fiber*.40,muscleMask);
+ float recess=max(featureWeight.x*.90,featureWeight.y*.96);
+ float faceRelief=1.-recess;
+ light*=mix(1.,faceRelief,faceWeight);
+ light+=featureWeight.z*.07+featureWeight.w*.10;
+ opacity=.90;
 }`;
 const fragmentShader = `varying float light;varying float opacity;varying float detachment;uniform float wakePass;
 void main(){float visibility=mix(1.-detachment,detachment,wakePass);if(visibility<.01)discard;
-float r=length(gl_PointCoord-.5)*2.;if(r>1.)discard;gl_FragColor=vec4(vec3(light),exp(-r*r*3.4)*opacity*visibility);}`;
+float r=length(gl_PointCoord-.5)*2.;if(r>1.)discard;gl_FragColor=vec4(vec3(light),(.80*(1.-smoothstep(.32,.70,r))+.15*exp(-r*r*6.))*opacity*visibility);}`;
 async function loadEquine() {
   const root = import.meta.env.BASE_URL + "equine/";
   const responses = await Promise.all(
@@ -84,10 +92,11 @@ export async function createArtwork() {
   document.body.append(renderer.domElement);
   const scene = new THREE.Scene(),
     camera = new THREE.PerspectiveCamera(34, 1, 0.1, 120);
-  const mesh = await loadEquine();
+  const anatomy = refineAnatomy(await loadEquine());
+  const mesh = anatomy.mesh;
   const compact = innerWidth < 600;
   const count = compact ? 68000 : 140000;
-  const cloud = sampleSurface(mesh, count);
+  const cloud = sampleSurface(mesh, count, 71, Float32Array.from(anatomy.faceWeights, weight => 1 + 3 * weight));
   const width = 1024,
     height = Math.ceil((mesh.vertexCount * mesh.frameCount) / width),
     data = new Float32Array(width * height * 4);
@@ -113,7 +122,19 @@ export async function createArtwork() {
   };
   const wake = createParticleWake(renderer, count, cloud, uniforms);
   const particleUniforms = { ...uniforms, ...wake.uniforms, wakePass: { value: 0 } };
+  const hair = createHair(scene, anatomy, particleUniforms);
+  const faceWeight = new Float32Array(count), featureWeight = new Float32Array(count * 4);
+  for (let i = 0; i < count; i++) {
+    const weights = [cloud.weights[i * 2], cloud.weights[i * 2 + 1], 1 - cloud.weights[i * 2] - cloud.weights[i * 2 + 1]];
+    for (let corner = 0; corner < 3; corner++) {
+      const id = cloud.triangles[i * 3 + corner], weight = weights[corner];
+      faceWeight[i] += anatomy.faceWeights[id] * weight;
+      for (let component = 0; component < 4; component++) featureWeight[i * 4 + component] += anatomy.featureWeights[id * 4 + component] * weight;
+    }
+  }
   const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("faceWeight", new THREE.BufferAttribute(faceWeight, 1));
+  geometry.setAttribute("featureWeight", new THREE.BufferAttribute(featureWeight, 4));
   geometry.setAttribute("wakeUv", new THREE.BufferAttribute(wake.uv, 2));
   geometry.setAttribute(
     "position",
@@ -208,6 +229,7 @@ export async function createArtwork() {
   function setTime(time: number) {
     const frame = frameAt(time, mesh.frameCount, mesh.cycleSeconds);
     uniforms.frame.value.set(frame.a, frame.b, frame.mix);
+    hair.update(time, undefined, renderer.getPixelRatio());
   }
   resize();
   setTime(0);
@@ -221,6 +243,8 @@ export async function createArtwork() {
     material,
     horse,
     wake,
+    hair,
+    anatomy,
     scattered,
     resize,
     setTime,
