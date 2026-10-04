@@ -39,3 +39,22 @@ test('fast sweeps pull visible streams out and particles reassemble',async({page
  const maximum=await displacement();expect(maximum).toBeGreaterThan(.2);expect(maximum).toBeLessThanOrEqual(.801);
  await page.mouse.move(-20,-20);await expect.poll(displacement,{timeout:3000}).toBeLessThan(.005);
 });
+test('touch taps disturb locally and touch drags only steer the camera',async({browser})=>{
+ const context=await browser.newContext({viewport:{width:390,height:844},hasTouch:true});const page=await context.newPage();
+ const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('http://127.0.0.1:4173');await expect.poll(async()=> (await state(page))?.time).toBeGreaterThan(.1);
+ await page.touchscreen.tap(210,405);await expect.poll(async()=> (await state(page)).wakeStrength).toBeGreaterThan(.1);
+ const a=(await state(page)).cameraYaw;const session=await context.newCDPSession(page);
+ await session.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:150,y:400,id:1}]});
+ for(let x=160;x<=290;x+=10){await session.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x,y:400,id:1}]});await page.waitForTimeout(16);}
+ await expect.poll(async()=> (await state(page)).dragging).toBe(true);
+ expect((await state(page)).wakeStrength).toBe(0);
+ await session.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await page.waitForTimeout(100);
+ expect((await state(page)).wakeStrength).toBe(0);expect(Math.abs((await state(page)).cameraYaw-a)).toBeGreaterThan(.1);
+ expect(errors).toEqual([]);await context.close();
+});
+test('analytic fallback works without floating-point render targets',async({page})=>{
+ await page.addInitScript(()=>{const original=WebGL2RenderingContext.prototype.getExtension;WebGL2RenderingContext.prototype.getExtension=function(name){return name==='EXT_color_buffer_float'?null:original.call(this,name);};});
+ const errors:string[]=[];page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});page.on('pageerror',e=>errors.push(e.message));await page.goto('/');
+ await expect.poll(async()=> (await state(page))?.simulation).toBe('analytic');await page.mouse.move(650,450);await page.mouse.move(850,460,{steps:10});await expect.poll(async()=> (await state(page)).wakeStrength).toBeGreaterThan(0);
+ await page.mouse.move(-20,-20);await expect.poll(async()=> (await state(page)).wakeStrength).toBeLessThan(.01);expect(errors).toEqual([]);
+});
