@@ -32,3 +32,10 @@ test('switching reduced motion on restores a disturbed horse completely',async({
  await page.emulateMedia({reducedMotion:'reduce'});
  await expect.poll(displacement).toBeLessThan(.002);
 });
+test('fast sweeps pull visible streams out and particles reassemble',async({page})=>{
+ await page.goto('/');await expect.poll(async()=> (await state(page))?.time).toBeGreaterThan(.1);
+ const displacement=()=>page.evaluate(()=>(window as unknown as {__ARTWORK:{inspectWake:()=>number}}).__ARTWORK.inspectWake());
+ for(let i=0;i<3;i++){await page.mouse.move(620,440);await page.mouse.move(840,470,{steps:10});}
+ const maximum=await displacement();expect(maximum).toBeGreaterThan(.2);expect(maximum).toBeLessThanOrEqual(.801);
+ await page.mouse.move(-20,-20);await expect.poll(displacement,{timeout:3000}).toBeLessThan(.005);
+});

@@ -14,3 +14,11 @@ test("adapts to a 60 fps desktop budget and a 30 fps compact budget", () => {
   expect(qualityForFrame(0.5, 33, 1000 / 30)).toBeGreaterThan(0.5);
   expect(qualityForFrame(0.5, 40, 1000 / 30)).toBeLessThan(0.5);
 });
+
+test('samples sustained slow rendering by wall time without waiting ninety frames', async()=> {
+ const {qualityWindowReady} = await import('../src/dynamics');
+ expect(qualityWindowReady(10,1600)).toBe(false);
+ expect(qualityWindowReady(30,1600)).toBe(true);
+ expect(qualityWindowReady(90,1000)).toBe(true);
+ expect(qualityWindowReady(60,1000)).toBe(false);
+});
