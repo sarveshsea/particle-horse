@@ -115,3 +115,7 @@ Apple M3 Pro, 12-core CPU, 36 GB RAM, headless Chromium 153 using the physical G
 [Raw measurements and source hashes](performance-12.json). The results meet the local 60 fps desktop and 30 fps portrait targets; no claim is made about all devices. [Current audiovisual preview](preview.mp4) shows the moving meadow, kicks, tail, scattering and camera drag.
 
 ![Current tail attachment](tail-12.png)
+
+## Checkpoint 13 — clean strand tail
+
+The tail uses normal alpha filaments, a smooth immediately opening strand bundle, and sparse highlight grains rather than additive accumulation. Roots retain the central croup attachment and body wake coupling. Seven hair checks pass, including proximal spread and anchored root continuity; the production build passes and the desktop frame was inspected. Seeded botanical sampling and bounded brush primitives land as tested infrastructure for the next checkpoints so their preceding RED tests remain green.
