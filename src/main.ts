@@ -1,2 +1,2 @@
-const canvas = document.createElement('canvas');
-document.body.append(canvas);
+import { createArtwork } from './render';
+createArtwork();
