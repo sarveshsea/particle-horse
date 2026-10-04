@@ -7,3 +7,4 @@ describe('soil clods',()=>{
  it('pigments fragments green or warm earth without white bleaching',()=>{for(let i=0;i<100;i++){const c=dirtPigment(i/100);expect(c.every(v=>Number.isFinite(v)&&v>=0&&v<.5)).toBe(true);}expect(dirtPigment(.9)[0]).toBeGreaterThan(dirtPigment(.9)[2]);});
  it('rejects invalid coordinates, energy and lifetime inputs',()=>{expect(()=>dirtPoint({x:NaN,z:0,born:0,strength:1},.2,.2)).toThrow();expect(()=>dirtLaunch(.2,Infinity)).toThrow();expect(()=>dirtPoint({x:0,z:0,born:0,strength:1},-.1,.2)).toThrow();expect(()=>dirtPigment(2)).toThrow();});
 });
+it('settled clods retain fixed material coordinates instead of sliding like fluid',()=>{const hit={x:.5,z:.2,born:2,strength:.9};for(const seed of [.04,.45,.9]){const a=dirtPoint(hit,1.3,seed),b=dirtPoint(hit,2.1,seed);expect(a.x+6*(hit.born+1.3)).toBeCloseTo(b.x+6*(hit.born+2.1),9);expect(a.z).toBeCloseTo(b.z,9);expect(a.y).toBeCloseTo(worldHeight(a.x,a.z,3.3)+.002);}});
