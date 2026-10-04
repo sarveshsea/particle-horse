@@ -7,3 +7,8 @@ describe('wind stream generation',()=>{
  it('creates shader streams and reduces their actual submission count',()=>{for(const width of [390,1440]){vi.stubGlobal('innerWidth',width);const scene=new THREE.Scene();const wind=createWind(scene,6);const points=scene.children[0] as THREE.Points;expect(points.geometry.getAttribute('position').count).toBe(width<600?1024:2048);expect(wind.material.uniforms.speed.value).toBe(6);expect(wind.material.depthWrite).toBe(false);wind.setQuality(.5);expect(points.geometry.drawRange.count).toBe(width<600?256:512);wind.setQuality(1);expect(points.geometry.drawRange.count).toBe(width<600?1024:2048);points.geometry.dispose();wind.material.dispose();}vi.unstubAllGlobals();});
  it('rejects invalid populations',()=>{for(const count of [0,-1,1.5,NaN,20001])expect(()=>generateWind(count)).toThrow(RangeError);});
 });
+it('keeps low wind streams above the rolling terrain',async()=>{
+ const {windStreamPoint}=await import('../src/wind');const {worldHeight}=await import('../src/terrain');
+ for(let t=0;t<6;t+=.17){const p=windStreamPoint([1,.12,-.85],0,t);expect(p.every(Number.isFinite)).toBe(true);expect(p[1]-worldHeight(p[0],p[2],t)).toBeGreaterThan(.04);}
+ expect(()=>windStreamPoint([NaN,.12,0],0,1)).toThrow();
+});
