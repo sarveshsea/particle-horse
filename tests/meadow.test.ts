@@ -32,3 +32,22 @@ describe('particle meadow',()=>{
   for(const f of meadow.flowers)for(const p of f.petals)expect([p.x,p.y,p.z].every(Number.isFinite)).toBe(true);
  });
 });
+
+import * as THREE from 'three';
+import { createMeadow } from '../src/meadow-render';
+it('integrates a bounded wordless meadow with lifecycle and finite updates',()=>{
+ const scene=new THREE.Scene(),field=createMeadow(scene,true);
+ expect(scene.children).toHaveLength(2);expect(field.diagnostics.grass).toBe(4200);expect(field.diagnostics.flowers).toBe(90);expect(field.diagnostics.bushes).toBe(36);
+ field.update(.1,[strike],1.5);field.update(.2,[strike],1.5);field.update(.3,[],1,true);field.setQuality(.35);
+ expect(()=>field.update(NaN,[],1)).toThrow();expect(()=>field.setQuality(NaN)).toThrow();
+ const leaves=scene.children[1] as THREE.Points;expect(leaves.geometry.drawRange.count).toBeLessThan(field.diagnostics.leafParticles);
+ field.dispose();expect(scene.children).toHaveLength(0);
+});
+
+it('makes flowers readable from a low camera and places vegetation in the hoof route',()=>{
+ const field=generateMeadow(600,120,60,71);
+ expect(field.flowers.filter(f=>Math.abs(f.z)<.55).length).toBeGreaterThanOrEqual(30);
+ expect(field.bushes.filter(b=>Math.abs(b.z)>=.5&&Math.abs(b.z)<=.8).length).toBeGreaterThanOrEqual(10);
+ for(const flower of field.flowers)expect(Math.max(...flower.petals.map(p=>p.y))-Math.min(...flower.petals.map(p=>p.y))).toBeGreaterThan(.025);
+ expect(field.grass.every(g=>g.height>=.05&&g.height<=.15)).toBe(true);
+});
